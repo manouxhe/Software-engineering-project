@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KitBox.ViewModels"
+             x:Class="KitBox.Views.CustomizationPage"
+             x:DataType="vm:CustomizationViewModel">
+
+    <StackPanel Margin="20" Spacing="20" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <TextBlock Text="Personnalisation de l'armoire"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Foreground="Black"/>
+
+        <TextBlock Text="Ici, vous pourrez ajouter des casiers et choisir les couleurs."
+                   FontStyle="Italic"
+                   Opacity="0.6"
+                   TextAlignment="Center"
+                   Foreground="Black"/>
+
+        <Button Content="Retour aux dimensions"
+                Command="{Binding GoBackCommand}"
+                HorizontalAlignment="Center"
+                Padding="20,10"
+                Margin="0,20,0,0"
+                Background="Gray"/>
+    </StackPanel>
+</UserControl>
