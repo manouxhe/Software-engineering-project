@@ -15,7 +15,7 @@ namespace KitBox.Models
         public int Height { get; set; }
 
         // couleur_panneaux
-        public string PanelColor { get; set; } = "Blanc";
+        public string PanelColor { get; set; } = "White";
 
         // a_une_porte
         public bool HasDoor { get; set; }

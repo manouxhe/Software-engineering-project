@@ -17,7 +17,7 @@ namespace KitBox.Models
         public int Depth { get; set; }
 
         // couleur_cornieres
-        public string AngleIronColor { get; set; } = "Blanc"; // Valeur par défaut
+        public string AngleIronColor { get; set; } = "White"; // Valeur par défaut
 
         // Relation: Une armoire est composée de casiers (1..7)
         public List<Locker> Lockers { get; set; } = new List<Locker>();

@@ -21,7 +21,6 @@ namespace KitBox.ViewModels
         private void ExecuteStart()
         {
             // On demande au MainViewModel de passer à l'étape suivante
-            // Note : Tu devras créer DimensionsViewModel par la suite.
             _main.NavigateTo(new DimensionsViewModel(_main));
         }
     }
