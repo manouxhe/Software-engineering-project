@@ -7,19 +7,18 @@ namespace KitBox
 {
     public class ViewLocator : IDataTemplate
     {
-        // On ajoute le '?' pour indiquer que data peut être nul
+
         public Control? Build(object? data)
         {
             if (data == null) return null;
 
-            var name = data.GetType().FullName!.Replace("ViewModel", "View");
-            var type = Type.GetType(name);
+            // On remplace spécifiquement "ViewModels" par "Views" 
+            // et le suffixe "ViewModel" par "Page"
+            var name = data.GetType().FullName!
+                .Replace("ViewModels", "Views")
+                .Replace("ViewModel", "Page");
 
-            if (type == null)
-            {
-                name = data.GetType().FullName!.Replace("ViewModel", "Page");
-                type = Type.GetType(name);
-            }
+            var type = Type.GetType(name);
 
             if (type != null)
             {

@@ -5,13 +5,13 @@ namespace KitBox.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        private ViewModelBase _currentPage;
+        private ViewModelBase? _currentPage;
 
         /// <summary>
         /// Propriété liée au ContentControl de la MainWindow.
         /// Elle définit quelle vue est actuellement affichée.
         /// </summary>
-        public ViewModelBase CurrentPage
+        public ViewModelBase? CurrentPage
         {
             get => _currentPage;
             set => this.RaiseAndSetIfChanged(ref _currentPage, value);
@@ -20,7 +20,7 @@ namespace KitBox.ViewModels
         public MainViewModel()
         {
             // Au démarrage de l'application, on affiche la page d'accueil
-            _currentPage = new HomeViewModel(this);
+            CurrentPage = new HomeViewModel(this);
         }
 
         /// <summary>
