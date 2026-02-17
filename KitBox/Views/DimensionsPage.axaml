@@ -4,33 +4,39 @@
              x:Class="KitBox.Views.DimensionsPage"
              x:DataType="vm:DimensionsViewModel">
 
-    <Design.PreviewConfiguration>
-        <Design />
-    </Design.PreviewConfiguration>
+    <StackPanel Margin="40" Spacing="30" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="400">
 
-    <StackPanel Margin="20" Spacing="20" VerticalAlignment="Center" HorizontalAlignment="Center">
-        <TextBlock Text="Configuration des dimensions"
-                   FontSize="24"
-                   FontWeight="Bold"
-                   HorizontalAlignment="Center"
+        <TextBlock Text="Configuration de l'Armoire"
+                   FontSize="28" FontWeight="Bold"
+                   Foreground="#1a1a1a" HorizontalAlignment="Center"/>
+
+        <TextBlock Text="Sélectionnez les dimensions globales de votre meuble."
+                   TextWrapping="Wrap" TextAlignment="Center" Opacity="0.6"
                    Foreground="Black"/>
 
-        <TextBlock Text="Cette page est actuellement vierge. Bientôt, les menus déroulants apparaîtront ici !"
-                   FontStyle="Italic"
-                   Opacity="0.6"
-                   TextAlignment="Center"
-                   Foreground="Black"/>
+        <StackPanel Spacing="10">
+            <TextBlock Text="Largeur (cm)" FontWeight="SemiBold" Foreground="Black"/>
+            <ComboBox ItemsSource="{Binding AvailableWidths}"
+                      SelectedItem="{Binding SelectedWidth}"
+                      HorizontalAlignment="Stretch"
+                      PlaceholderText="Choisir..."/>
+        </StackPanel>
+
+        <StackPanel Spacing="10">
+            <TextBlock Text="Profondeur (cm)" FontWeight="SemiBold" Foreground="Black"/>
+            <ComboBox ItemsSource="{Binding AvailableDepths}"
+                      SelectedItem="{Binding SelectedDepth}"
+                      HorizontalAlignment="Stretch"
+                      PlaceholderText="Choisir..."/>
+        </StackPanel>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="20" Margin="0,20,0,0">
-            <Button Content="Retour à l'accueil"
-                    Command="{Binding GoBackCommand}"
-                    Background="Gray" />
+            <Button Content="Annuler" Command="{Binding GoBackCommand}" Background="#b3b3b3" />
 
-            <Button Content="Suivant"
+            <Button Content="Valider les dimensions"
                     Command="{Binding NextCommand}"
-                    Background="#2196F3"
-                    Foreground="White"
-                    FontWeight="Bold"/>
+                    Background="#2196F3" Foreground="White" FontWeight="Bold"/>
         </StackPanel>
+
     </StackPanel>
 </UserControl>

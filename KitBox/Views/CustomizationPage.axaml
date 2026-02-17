@@ -17,6 +17,9 @@
                    TextAlignment="Center"
                    Foreground="Black"/>
 
+        <TextBlock Text="{Binding CurrentCabinet.Width, StringFormat='Largeur : {0} cm'}" />
+        <TextBlock Text="{Binding CurrentCabinet.Depth, StringFormat='Profondeur : {0} cm'}" />
+
         <Button Content="Retour aux dimensions"
                 Command="{Binding GoBackCommand}"
                 HorizontalAlignment="Center"
