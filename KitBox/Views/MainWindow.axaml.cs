@@ -1,11 +1,13 @@
 using Avalonia.Controls;
 
-namespace KitBox;
-
-public partial class MainWindow : Window
+namespace KitBox.Views
 {
-    public MainWindow()
+    // Le mot-clé 'partial' est obligatoire pour qu'Avalonia génère InitializeComponent()
+    public partial class MainWindow : Window
     {
-        InitializeComponent();
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
     }
 }

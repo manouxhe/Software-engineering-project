@@ -1,7 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using ReactiveUI;
 
-namespace ChessDB.ViewModels;
+namespace KitBox.ViewModels;
 
-public class ViewModelBase : ObservableObject
+public class ViewModelBase : ReactiveObject
 {
 }

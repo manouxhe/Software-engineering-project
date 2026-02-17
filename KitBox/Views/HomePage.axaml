@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KitBox.ViewModels"
+             x:Class="KitBox.Views.HomePage"
+             x:DataType="vm:HomeViewModel">
+
+    <Grid RowDefinitions="*, Auto, *" Margin="20">
+        <StackPanel Grid.Row="1" Spacing="20" HorizontalAlignment="Center">
+            <TextBlock Text="Kitbox"
+                       FontSize="48"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       Foreground="#2196F3"/>
+
+            <TextBlock Text="Concevez votre armoire sur mesure en quelques clics."
+                       FontSize="18"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       Opacity="0.7"/>
+
+            <Button Content="Démarrer la conception de l'armoire"
+                    Command="{Binding StartCommand}"
+                    HorizontalAlignment="Center"
+                    Padding="30,15"
+                    FontSize="18"
+                    Background="#2196F3"
+                    Foreground="White"
+                    CornerRadius="8">
+                <Button.Transitions>
+                    <Transitions>
+                        <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+                    </Transitions>
+                </Button.Transitions>
+            </Button>
+        </StackPanel>
+
+        <TextBlock Grid.Row="2"
+                   Text="© 2026 Kitbox - Solution de rangement modulable"
+                   VerticalAlignment="Bottom"
+                   HorizontalAlignment="Center"
+                   FontSize="12"
+                   Opacity="0.5"/>
+    </Grid>
+</UserControl>
