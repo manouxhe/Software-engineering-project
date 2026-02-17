@@ -3,7 +3,8 @@
         xmlns:vm="using:KitBox.ViewModels"
         x:Class="KitBox.Views.MainWindow"
         x:DataType="vm:MainViewModel"
-        Title="KitBox Manager">
+        Title="KitBox Manager"
+        Background="#E7E7E7">
 
     <ContentControl Content="{Binding CurrentPage}" />
 

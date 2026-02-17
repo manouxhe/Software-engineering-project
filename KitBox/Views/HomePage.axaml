@@ -16,7 +16,8 @@
                        FontSize="18"
                        TextWrapping="Wrap"
                        TextAlignment="Center"
-                       Opacity="0.7"/>
+                       Opacity="0.7"
+                       Foreground="Black"/>
 
             <Button Content="Démarrer la conception de l'armoire"
                     Command="{Binding StartCommand}"
@@ -24,13 +25,7 @@
                     Padding="30,15"
                     FontSize="18"
                     Background="#2196F3"
-                    Foreground="White"
                     CornerRadius="8">
-                <Button.Transitions>
-                    <Transitions>
-                        <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
-                    </Transitions>
-                </Button.Transitions>
             </Button>
         </StackPanel>
 
@@ -39,6 +34,7 @@
                    VerticalAlignment="Bottom"
                    HorizontalAlignment="Center"
                    FontSize="12"
-                   Opacity="0.5"/>
+                   Opacity="0.5"
+                   Foreground="Black"/>
     </Grid>
 </UserControl>
