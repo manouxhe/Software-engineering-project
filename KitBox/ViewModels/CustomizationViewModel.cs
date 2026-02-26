@@ -1,13 +1,13 @@
 using ReactiveUI;
 using System.Windows.Input;
 using KitBox.Models;
+
 namespace KitBox.ViewModels
 {
     public class CustomizationViewModel : ViewModelBase
     {
         private readonly MainViewModel _main;
 
-        // L'armoire en cours de création est stockée ici
         public Cabinet CurrentCabinet { get; }
 
         public ICommand GoBackCommand { get; }
@@ -17,10 +17,10 @@ namespace KitBox.ViewModels
             _main = main;
             CurrentCabinet = cabinet;
 
-            // Commande pour retourner à la page des dimensions
             GoBackCommand = ReactiveCommand.Create(() =>
             {
-                _main.NavigateTo(new DimensionsViewModel(_main));
+                // AJOUT : On renvoie l'armoire actuelle à la page précédente
+                _main.NavigateTo(new DimensionsViewModel(_main, CurrentCabinet));
             });
         }
     }
