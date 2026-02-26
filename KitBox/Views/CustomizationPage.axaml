@@ -2,29 +2,101 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KitBox.ViewModels"
              x:Class="KitBox.Views.CustomizationPage"
-             x:DataType="vm:CustomizationViewModel">
+             x:DataType="vm:CustomizationViewModel"
+             Background="White">
 
-    <StackPanel Margin="20" Spacing="20" VerticalAlignment="Center" HorizontalAlignment="Center">
-        <TextBlock Text="Personnalisation de l'armoire"
-                   FontSize="24"
-                   FontWeight="Bold"
-                   HorizontalAlignment="Center"
-                   Foreground="Black"/>
+    <Grid>
+        <Grid ColumnDefinitions="*, *">
 
-        <TextBlock Text="Ici, vous pourrez ajouter des casiers et choisir les couleurs."
-                   FontStyle="Italic"
-                   Opacity="0.6"
-                   TextAlignment="Center"
-                   Foreground="Black"/>
+            <Grid Grid.Column="0" RowDefinitions="Auto, *, Auto" Margin="20">
 
-        <TextBlock Text="{Binding CurrentCabinet.Width, StringFormat='Largeur : {0} cm'}" />
-        <TextBlock Text="{Binding CurrentCabinet.Depth, StringFormat='Profondeur : {0} cm'}" />
+                <StackPanel Grid.Row="0" Spacing="5" Margin="0,0,0,20">
+                    <TextBlock Text="Personnalisation" FontSize="28" FontWeight="Bold" Foreground="Black"/>
+                    <TextBlock Text="{Binding CurrentCabinet.Width, StringFormat='Dimensions globales : {0}cm (L)'}" Foreground="Gray"/>
+                    <TextBlock Text="{Binding CurrentCabinet.Depth, StringFormat='Profondeur : {0}cm'}" Foreground="Gray"/>
+                </StackPanel>
 
-        <Button Content="Retour aux dimensions"
-                Command="{Binding GoBackCommand}"
-                HorizontalAlignment="Center"
-                Padding="20,10"
-                Margin="0,20,0,0"
-                Background="Gray"/>
-    </StackPanel>
+                <ScrollViewer Grid.Row="1">
+                    <ItemsControl ItemsSource="{Binding Lockers}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#F5F5F5" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Position, StringFormat='Casier n°{0}'}" FontWeight="Bold" Foreground="Black"/>
+                                        <TextBlock Text="{Binding Height, StringFormat='Hauteur : {0} cm'}" Foreground="#555"/>
+                                        <TextBlock Text="{Binding PanelColor, StringFormat='Couleur : {0}'}" Foreground="#555"/>
+                                        <TextBlock IsVisible="{Binding HasDoor}" Text="{Binding DoorColor, StringFormat='Porte : {0}'}" Foreground="#555"/>
+                                        <TextBlock IsVisible="{Binding !HasDoor}" Text="Sans porte" Foreground="#555"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="2" Spacing="10" Margin="0,10,0,0">
+                    <Button Content="+ Ajouter un casier"
+                            Command="{Binding OpenPopupCommand}"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            Classes="primary" Padding="15"/>
+
+                    <Button Content="Retour aux dimensions"
+                            Command="{Binding GoBackCommand}"
+                            Classes="secondary"
+                            HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="10"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Column="1" Background="#E0E0E0" Margin="20" CornerRadius="8">
+                <TextBlock Text="Aperçu visuel (Bientôt)" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#777"/>
+            </Border>
+        </Grid>
+
+        <Grid ZIndex="100" Background="#80000000" IsVisible="{Binding IsPopupOpen}">
+            <Border Background="White" CornerRadius="12" Padding="30"
+                    VerticalAlignment="Center" HorizontalAlignment="Center" Width="400"
+                    BoxShadow="0 10 30 0 #40000000">
+                <StackPanel Spacing="20">
+                    <TextBlock Text="Nouveau Casier" FontSize="22" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center"/>
+
+                    <StackPanel>
+                        <TextBlock Text="Hauteur (cm)" FontWeight="SemiBold" Foreground="Black"/>
+                        <ComboBox ItemsSource="{Binding AvailableHeights}" SelectedItem="{Binding SelectedHeight}" HorizontalAlignment="Stretch" PlaceholderText="Choisir..."/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <TextBlock Text="Couleur des panneaux" FontWeight="SemiBold" Foreground="Black"/>
+                        <ComboBox ItemsSource="{Binding AvailablePanelColors}" SelectedItem="{Binding SelectedPanelColor}" HorizontalAlignment="Stretch" PlaceholderText="Choisir..."/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <CheckBox Content="Ajouter des portes"
+                                  IsChecked="{Binding HasDoor}"
+                                  Foreground="Black">
+                            <CheckBox.Resources>
+                                <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeUnchecked" Color="Gray" />
+
+                                <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillChecked" Color="#2196F3" />
+
+                                <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeChecked" Color="#2196F3" />
+
+                                <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundChecked" Color="White" />
+                            </CheckBox.Resources>
+                        </CheckBox>
+                    </StackPanel>
+
+                    <StackPanel IsVisible="{Binding HasDoor}">
+                        <TextBlock Text="Couleur de la porte" FontWeight="SemiBold" Foreground="Black"/>
+                        <ComboBox ItemsSource="{Binding AvailableDoorColors}" SelectedItem="{Binding SelectedDoorColor}" HorizontalAlignment="Stretch" PlaceholderText="Choisir..."/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
+                        <Button Content="Annuler" Command="{Binding CancelPopupCommand}"/>
+                        <Button Content="Valider" Command="{Binding ValidateLockerCommand}" Background="#4CAF50" Foreground="White" FontWeight="Bold"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+    </Grid>
 </UserControl>

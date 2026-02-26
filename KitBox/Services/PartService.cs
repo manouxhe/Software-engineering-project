@@ -59,5 +59,53 @@ namespace KitBox.Services
                 { "Depths", depths }
             };
         }
+
+        public static Dictionary<string, List<string>> GetLockerOptions()
+        {
+            var heights = new List<string>();
+            var panelColors = new List<string>();
+            var doorColors = new List<string>();
+
+            try
+            {
+                using (var connection = new MySqlConnection(ConnectionString))
+                {
+                    connection.Open();
+
+                    // 1. Hauteurs disponibles (Panneaux de côté/fond)
+                    string heightQuery = "SELECT DISTINCT Height FROM Part WHERE Height > 0 AND Kind != 'Angle iron' ORDER BY Height;";
+                    using (var cmd = new MySqlCommand(heightQuery, connection))
+                    using (var reader = cmd.ExecuteReader())
+                        while (reader.Read()) heights.Add(reader.GetInt32("Height").ToString());
+
+                    // 2. Couleurs des panneaux (Panneau arrière, côté, etc.)
+                    string panelQuery = "SELECT DISTINCT Color FROM Part WHERE Kind LIKE '%panel%' AND Color IS NOT NULL ORDER BY Color;";
+                    using (var cmd = new MySqlCommand(panelQuery, connection))
+                    using (var reader = cmd.ExecuteReader())
+                        while (reader.Read()) panelColors.Add(reader.GetString("Color"));
+
+                    // 3. Couleurs des portes (Door)
+                    string doorQuery = "SELECT DISTINCT Color FROM Part WHERE Kind = 'Door' AND Color IS NOT NULL ORDER BY Color;";
+                    using (var cmd = new MySqlCommand(doorQuery, connection))
+                    using (var reader = cmd.ExecuteReader())
+                        while (reader.Read()) doorColors.Add(reader.GetString("Color"));
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur DB: {ex.Message}");
+                // Valeurs de secours au cas où
+                if (heights.Count == 0) heights.AddRange(new[] { "10", "42", "52" });
+                if (panelColors.Count == 0) panelColors.AddRange(new[] { "Bleu", "Brun" });
+                if (doorColors.Count == 0) doorColors.AddRange(new[] { "Bleu", "Brun", "Verre" });
+            }
+
+            return new Dictionary<string, List<string>>
+            {
+                { "Heights", heights },
+                { "PanelColors", panelColors },
+                { "DoorColors", doorColors }
+            };
+        }
     }
 }

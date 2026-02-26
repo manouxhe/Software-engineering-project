@@ -20,11 +20,11 @@
                        Foreground="Black"/>
 
             <Button Content="Démarrer la conception de l'armoire"
+                    Classes= "primary"
                     Command="{Binding StartCommand}"
                     HorizontalAlignment="Center"
                     Padding="30,15"
                     FontSize="18"
-                    Background="#2196F3"
                     CornerRadius="8">
             </Button>
         </StackPanel>
