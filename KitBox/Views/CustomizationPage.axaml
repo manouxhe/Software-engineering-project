@@ -21,13 +21,26 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Background="#F5F5F5" CornerRadius="8" Padding="15" Margin="0,0,0,10">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Position, StringFormat='Casier n°{0}'}" FontWeight="Bold" Foreground="Black"/>
-                                        <TextBlock Text="{Binding Height, StringFormat='Hauteur : {0} cm'}" Foreground="#555"/>
-                                        <TextBlock Text="{Binding PanelColor, StringFormat='Couleur : {0}'}" Foreground="#555"/>
-                                        <TextBlock IsVisible="{Binding HasDoor}" Text="{Binding DoorColor, StringFormat='Porte : {0}'}" Foreground="#555"/>
-                                        <TextBlock IsVisible="{Binding !HasDoor}" Text="Sans porte" Foreground="#555"/>
-                                    </StackPanel>
+                                    <Grid ColumnDefinitions="*, Auto">
+            
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding Position, StringFormat='Casier n°{0}'}" FontWeight="Bold" Foreground="Black"/>
+                                            <TextBlock Text="{Binding Height, StringFormat='Hauteur : {0} cm'}" Foreground="#555"/>
+                                            <TextBlock Text="{Binding PanelColor, StringFormat='Couleur : {0}'}" Foreground="#555"/>
+                                            <TextBlock IsVisible="{Binding HasDoor}" Text="{Binding DoorColor, StringFormat='Porte : {0}'}" Foreground="#555"/>
+                                            <TextBlock IsVisible="{Binding !HasDoor}" Text="Sans porte" Foreground="#555"/>
+                                        </StackPanel>
+
+                                        <Button Grid.Column="1" 
+                                                Content="Supprimer" 
+                                                Foreground="Red" 
+                                                Background="Transparent"
+                                                FontWeight="Bold"
+                                                VerticalAlignment="Center"
+                                                x:CompileBindings="False"
+                                                Command="{Binding $parent[UserControl].DataContext.DeleteLockerCommand}"
+                                                CommandParameter="{Binding}"/>
+                                    </Grid>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

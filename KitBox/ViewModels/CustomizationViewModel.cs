@@ -45,6 +45,7 @@ namespace KitBox.ViewModels
         public ReactiveCommand<Unit, Unit> OpenPopupCommand { get; }
         public ReactiveCommand<Unit, Unit> CancelPopupCommand { get; }
         public ReactiveCommand<Unit, Unit> ValidateLockerCommand { get; }
+        public ReactiveCommand<Locker, Unit> DeleteLockerCommand { get; }
 
         public CustomizationViewModel(MainViewModel main, Cabinet cabinet)
         {
@@ -75,6 +76,7 @@ namespace KitBox.ViewModels
             });
 
             CancelPopupCommand = ReactiveCommand.Create(() => { IsPopupOpen = false; });
+            DeleteLockerCommand = ReactiveCommand.Create<Locker>(OnDeleteLocker);
 
             // Validation : On ne peut valider que si Hauteur et Couleur Panneau sont choisis. 
             // Si HasDoor est vrai, il faut aussi la couleur de la porte.
@@ -100,6 +102,21 @@ namespace KitBox.ViewModels
             Lockers.Add(newLocker);
             CurrentCabinet.Lockers.Add(newLocker); // Sauvegarde dans l'armoire
             IsPopupOpen = false; // Ferme le popup
+        }
+
+        private void OnDeleteLocker(Locker lockerToDelete)
+        {
+            if (lockerToDelete != null)
+            {
+                Lockers.Remove(lockerToDelete);
+
+                CurrentCabinet.Lockers.Remove(lockerToDelete);
+
+                for (int i = 0; i < Lockers.Count; i++)
+                {
+                    Lockers[i].Position = i + 1;
+                }
+            }
         }
     }
 }
