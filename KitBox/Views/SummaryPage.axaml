@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KitBox.ViewModels"
+             x:Class="KitBox.Views.SummaryPage"
+             x:DataType="vm:SummaryViewModel"
+             Background="White">
+
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+        <TextBlock Text="Récapitulatif de votre commande" FontSize="28" FontWeight="Bold" Foreground="Black"/>
+
+        <TextBlock Text="{Binding FinalCabinet.Lockers.Count, StringFormat='Votre armoire contient {0} casiers.'}" Foreground="Gray" FontSize="18"/>
+
+        <Button Content="Retour à la personnalisation"
+                Command="{Binding GoBackCommand}"
+                Classes="secondary"
+                HorizontalAlignment="Center" Padding="15"/>
+    </StackPanel>
+
+</UserControl>

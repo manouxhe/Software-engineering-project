@@ -67,6 +67,8 @@ namespace KitBox.ViewModels
         public ReactiveCommand<Locker, Unit> DeleteLockerCommand { get; }
         public ReactiveCommand<Locker, Unit> EditLockerCommand { get; }
 
+        public ReactiveCommand<Unit, Unit> NextCommand { get; }
+
         public CustomizationViewModel(MainViewModel main, Cabinet cabinet)
         {
             _main = main;
@@ -113,6 +115,12 @@ namespace KitBox.ViewModels
             );
 
             ValidateLockerCommand = ReactiveCommand.Create(OnValidateLocker, canValidate);
+
+            NextCommand = ReactiveCommand.Create(() =>
+            {
+                // On passe l'armoire terminée à la page de résumé
+                _main.NavigateTo(new SummaryViewModel(_main, CurrentCabinet));
+            });
         }
 
         private void OnEditLocker(Locker lockerToEdit)
