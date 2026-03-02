@@ -34,6 +34,8 @@ namespace KitBox.ViewModels
         public ObservableCollection<string> AvailablePanelColors { get; }
         public ObservableCollection<string> AvailableDoorColors { get; }
 
+        public ObservableCollection<string> AvailableAngleIronColors { get; }
+
         private string? _selectedHeight;
         public string? SelectedHeight { get => _selectedHeight; set => this.RaiseAndSetIfChanged(ref _selectedHeight, value); }
 
@@ -45,6 +47,18 @@ namespace KitBox.ViewModels
 
         private string? _selectedDoorColor;
         public string? SelectedDoorColor { get => _selectedDoorColor; set => this.RaiseAndSetIfChanged(ref _selectedDoorColor, value); }
+
+        private string? _selectedAngleIronColor;
+        public string? SelectedAngleIronColor
+        {
+            get => _selectedAngleIronColor;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _selectedAngleIronColor, value);
+                // On sauvegarde directement la couleur dans l'armoire quand l'utilisateur change la valeur
+                if (value != null) CurrentCabinet.AngleIronColor = value;
+            }
+        }
 
         public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
         public ReactiveCommand<Unit, Unit> OpenPopupCommand { get; }
@@ -69,6 +83,11 @@ namespace KitBox.ViewModels
             AvailableHeights = new ObservableCollection<string>(options["Heights"]);
             AvailablePanelColors = new ObservableCollection<string>(options["PanelColors"]);
             AvailableDoorColors = new ObservableCollection<string>(options["DoorColors"]);
+            AvailableAngleIronColors = new ObservableCollection<string>(options["AngleIronColors"]);
+
+            SelectedAngleIronColor = string.IsNullOrEmpty(cabinet.AngleIronColor) || cabinet.AngleIronColor == "Blanc"
+            ? AvailableAngleIronColors.FirstOrDefault()
+            : cabinet.AngleIronColor;
 
             GoBackCommand = ReactiveCommand.Create(() => _main.NavigateTo(new DimensionsViewModel(_main, CurrentCabinet)));
 

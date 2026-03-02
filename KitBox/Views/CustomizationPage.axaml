@@ -14,6 +14,14 @@
                     <TextBlock Text="Personnalisation" FontSize="28" FontWeight="Bold" Foreground="Black"/>
                     <TextBlock Text="{Binding CurrentCabinet.Width, StringFormat='Dimensions globales : {0}cm (L)'}" Foreground="Gray"/>
                     <TextBlock Text="{Binding CurrentCabinet.Depth, StringFormat='Profondeur : {0}cm'}" Foreground="Gray"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
+                        <TextBlock Text="Couleur des cornières :" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="Black"/>
+                        <ComboBox ItemsSource="{Binding AvailableAngleIronColors}"
+                                  SelectedItem="{Binding SelectedAngleIronColor}"
+                                  Width="180"
+                                  PlaceholderText="Choisir..."/>
+                    </StackPanel>
                 </StackPanel>
 
                 <ScrollViewer Grid.Row="1">

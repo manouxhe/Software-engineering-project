@@ -65,6 +65,7 @@ namespace KitBox.Services
             var heights = new List<string>();
             var panelColors = new List<string>();
             var doorColors = new List<string>();
+            var angleIronColors = new List<string>(); // AJOUT 1 : La liste pour stocker les couleurs des cornières
 
             try
             {
@@ -89,6 +90,12 @@ namespace KitBox.Services
                     using (var cmd = new MySqlCommand(doorQuery, connection))
                     using (var reader = cmd.ExecuteReader())
                         while (reader.Read()) doorColors.Add(reader.GetString("Color"));
+
+                    // AJOUT 2 : Couleurs des cornières (Angle iron)
+                    string angleQuery = "SELECT DISTINCT Color FROM Part WHERE Kind = 'Angle iron' AND Color IS NOT NULL ORDER BY Color;";
+                    using (var cmd = new MySqlCommand(angleQuery, connection))
+                    using (var reader = cmd.ExecuteReader())
+                        while (reader.Read()) angleIronColors.Add(reader.GetString("Color"));
                 }
             }
             catch (Exception ex)
@@ -98,13 +105,17 @@ namespace KitBox.Services
                 if (heights.Count == 0) heights.AddRange(new[] { "10", "42", "52" });
                 if (panelColors.Count == 0) panelColors.AddRange(new[] { "Bleu", "Brun" });
                 if (doorColors.Count == 0) doorColors.AddRange(new[] { "Bleu", "Brun", "Verre" });
+
+                // AJOUT 3 : Valeurs de secours pour les cornières
+                if (angleIronColors.Count == 0) angleIronColors.AddRange(new[] { "Blanc", "Noir", "Galvanisé" });
             }
 
             return new Dictionary<string, List<string>>
             {
                 { "Heights", heights },
                 { "PanelColors", panelColors },
-                { "DoorColors", doorColors }
+                { "DoorColors", doorColors },
+                { "AngleIronColors", angleIronColors } // AJOUT 4 : On retourne la nouvelle liste
             };
         }
     }
