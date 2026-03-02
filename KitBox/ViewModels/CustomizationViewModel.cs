@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Reactive;
+using System.Linq; // AJOUT : Nécessaire pour inverser la liste au démarrage
 using ReactiveUI;
 using KitBox.Models;
 using KitBox.Services;
@@ -13,7 +14,6 @@ namespace KitBox.ViewModels
 
         public ObservableCollection<Locker> Lockers { get; } = new ObservableCollection<Locker>();
 
-        // --- Gestion du Popup ---
         private bool _isPopupOpen;
         public bool IsPopupOpen
         {
@@ -28,7 +28,6 @@ namespace KitBox.ViewModels
             set => this.RaiseAndSetIfChanged(ref _popupTitle, value);
         }
 
-        // Variable pour savoir si on modifie un casier existant (null si c'est une création)
         private Locker? _editingLocker;
 
         public ObservableCollection<string> AvailableHeights { get; }
@@ -47,21 +46,24 @@ namespace KitBox.ViewModels
         private string? _selectedDoorColor;
         public string? SelectedDoorColor { get => _selectedDoorColor; set => this.RaiseAndSetIfChanged(ref _selectedDoorColor, value); }
 
-        // --- Commandes ---
         public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
         public ReactiveCommand<Unit, Unit> OpenPopupCommand { get; }
         public ReactiveCommand<Unit, Unit> CancelPopupCommand { get; }
         public ReactiveCommand<Unit, Unit> ValidateLockerCommand { get; }
         public ReactiveCommand<Locker, Unit> DeleteLockerCommand { get; }
-        public ReactiveCommand<Locker, Unit> EditLockerCommand { get; } // Nouvelle commande
+        public ReactiveCommand<Locker, Unit> EditLockerCommand { get; }
 
         public CustomizationViewModel(MainViewModel main, Cabinet cabinet)
         {
             _main = main;
             CurrentCabinet = cabinet;
 
+            // MODIFICATION : Au chargement, on inverse l'ordre pour que le casier n°1 soit en bas
             if (cabinet.Lockers != null)
-                Lockers = new ObservableCollection<Locker>(cabinet.Lockers);
+            {
+                var reversedLockers = cabinet.Lockers.AsEnumerable().Reverse();
+                Lockers = new ObservableCollection<Locker>(reversedLockers);
+            }
 
             var options = PartService.GetLockerOptions();
             AvailableHeights = new ObservableCollection<string>(options["Heights"]);
@@ -70,10 +72,9 @@ namespace KitBox.ViewModels
 
             GoBackCommand = ReactiveCommand.Create(() => _main.NavigateTo(new DimensionsViewModel(_main, CurrentCabinet)));
 
-            // Ouvrir pour CRÉER un nouveau casier
             OpenPopupCommand = ReactiveCommand.Create(() =>
             {
-                _editingLocker = null; // Important: on réinitialise pour signifier une création
+                _editingLocker = null;
                 PopupTitle = "Nouveau Casier";
                 SelectedHeight = null;
                 SelectedPanelColor = null;
@@ -85,8 +86,6 @@ namespace KitBox.ViewModels
             CancelPopupCommand = ReactiveCommand.Create(() => { IsPopupOpen = false; _editingLocker = null; });
 
             DeleteLockerCommand = ReactiveCommand.Create<Locker>(OnDeleteLocker);
-
-            // Ouvrir pour MODIFIER un casier existant
             EditLockerCommand = ReactiveCommand.Create<Locker>(OnEditLocker);
 
             var canValidate = this.WhenAnyValue(
@@ -104,7 +103,6 @@ namespace KitBox.ViewModels
             _editingLocker = lockerToEdit;
             PopupTitle = $"Modifier le casier n°{lockerToEdit.Position}";
 
-            // Pré-remplir les champs avec les données du casier
             SelectedHeight = lockerToEdit.Height.ToString();
             SelectedPanelColor = lockerToEdit.PanelColor;
             HasDoor = lockerToEdit.HasDoor;
@@ -123,7 +121,6 @@ namespace KitBox.ViewModels
                 _editingLocker.HasDoor = HasDoor;
                 _editingLocker.DoorColor = HasDoor ? SelectedDoorColor : null;
 
-                // Astuce pour forcer l'interface à se rafraîchir avec les nouvelles valeurs
                 int index = Lockers.IndexOf(_editingLocker);
                 if (index != -1)
                 {
@@ -139,15 +136,19 @@ namespace KitBox.ViewModels
                     PanelColor = SelectedPanelColor!,
                     HasDoor = HasDoor,
                     DoorColor = HasDoor ? SelectedDoorColor : null,
-                    Position = Lockers.Count + 1
+                    // MODIFICATION : On se base sur l'armoire réelle pour calculer la position
+                    Position = CurrentCabinet.Lockers.Count + 1
                 };
 
-                Lockers.Add(newLocker);
+                // L'armoire (les données) garde l'ordre logique
                 CurrentCabinet.Lockers.Add(newLocker);
+
+                // L'affichage visuel insère le nouveau à la position 0 (tout en haut)
+                Lockers.Insert(0, newLocker);
             }
 
             IsPopupOpen = false;
-            _editingLocker = null; // Nettoyage
+            _editingLocker = null;
         }
 
         private void OnDeleteLocker(Locker lockerToDelete)
@@ -157,15 +158,18 @@ namespace KitBox.ViewModels
                 Lockers.Remove(lockerToDelete);
                 CurrentCabinet.Lockers.Remove(lockerToDelete);
 
-                for (int i = 0; i < Lockers.Count; i++)
+                // 1. Recalculer les positions selon l'ordre réel (CurrentCabinet)
+                for (int i = 0; i < CurrentCabinet.Lockers.Count; i++)
                 {
-                    Lockers[i].Position = i + 1;
+                    CurrentCabinet.Lockers[i].Position = i + 1;
                 }
 
-                // Rafraîchir l'affichage des positions
-                var tempList = new ObservableCollection<Locker>(Lockers);
+                // 2. Rafraîchir l'affichage en reprenant la liste réelle à l'envers
                 Lockers.Clear();
-                foreach (var item in tempList) Lockers.Add(item);
+                for (int i = CurrentCabinet.Lockers.Count - 1; i >= 0; i--)
+                {
+                    Lockers.Add(CurrentCabinet.Lockers[i]);
+                }
             }
         }
     }
