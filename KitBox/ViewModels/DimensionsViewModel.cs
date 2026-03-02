@@ -10,6 +10,9 @@ namespace KitBox.ViewModels
     {
         private readonly MainViewModel _main;
 
+        // AJOUT : On garde une trace de l'armoire qui nous est passée
+        private Cabinet? _existingCabinet;
+
         public ObservableCollection<int> AvailableWidths { get; }
         public ObservableCollection<int> AvailableDepths { get; }
 
@@ -30,21 +33,23 @@ namespace KitBox.ViewModels
         public ReactiveCommand<Unit, Unit> NextCommand { get; }
         public ReactiveCommand<Unit, Unit> GoBackCommand { get; }
 
-        // AJOUT : "Cabinet? existingCabinet = null" permet d'accepter une armoire existante (ou rien si on vient de l'accueil)
         public DimensionsViewModel(MainViewModel main, Cabinet? existingCabinet = null)
         {
             _main = main;
+
+            // AJOUT : On stocke l'armoire existante pour ne pas la perdre
+            _existingCabinet = existingCabinet;
 
             // 1. Charger les dimensions depuis la base de données
             var dims = PartService.GetDimensions();
             AvailableWidths = new ObservableCollection<int>(dims["Widths"]);
             AvailableDepths = new ObservableCollection<int>(dims["Depths"]);
 
-            // AJOUT : Si on revient en arrière, on restaure les choix
-            if (existingCabinet != null)
+            // Si on revient en arrière, on restaure les choix
+            if (_existingCabinet != null)
             {
-                SelectedWidth = existingCabinet.Width;
-                SelectedDepth = existingCabinet.Depth;
+                SelectedWidth = _existingCabinet.Width;
+                SelectedDepth = _existingCabinet.Depth;
             }
 
             // 2. Validation pour activer le bouton "Suivant"
@@ -57,7 +62,6 @@ namespace KitBox.ViewModels
             // 3. Commandes
             GoBackCommand = ReactiveCommand.Create(() =>
             {
-                // Si on retourne à l'accueil, on supprime l'armoire en cours (logique)
                 _main.NavigateTo(new HomeViewModel(_main));
             });
 
@@ -66,12 +70,26 @@ namespace KitBox.ViewModels
 
         private void OnNext()
         {
-            // On recrée ou met à jour l'armoire avec les dimensions (nouvelles ou modifiées)
-            var cabinet = new Cabinet
+            Cabinet cabinet;
+
+            // Si l'armoire existe déjà (on a fait un retour en arrière)
+            if (_existingCabinet != null)
             {
-                Width = SelectedWidth,
-                Depth = SelectedDepth
-            };
+                cabinet = _existingCabinet;
+                // On met juste à jour ses dimensions
+                cabinet.Width = SelectedWidth;
+                cabinet.Depth = SelectedDepth;
+                // Les casiers (cabinet.Lockers) restent intacts !
+            }
+            else
+            {
+                // Sinon, c'est la première fois, on crée une nouvelle armoire
+                cabinet = new Cabinet
+                {
+                    Width = SelectedWidth,
+                    Depth = SelectedDepth
+                };
+            }
 
             _main.NavigateTo(new CustomizationViewModel(_main, cabinet));
         }

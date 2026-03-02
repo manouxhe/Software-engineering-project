@@ -21,8 +21,8 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Background="#F5F5F5" CornerRadius="8" Padding="15" Margin="0,0,0,10">
-                                    <Grid ColumnDefinitions="*, Auto">
-            
+                                    <Grid ColumnDefinitions="*, Auto, Auto">
+
                                         <StackPanel Grid.Column="0">
                                             <TextBlock Text="{Binding Position, StringFormat='Casier n°{0}'}" FontWeight="Bold" Foreground="Black"/>
                                             <TextBlock Text="{Binding Height, StringFormat='Hauteur : {0} cm'}" Foreground="#555"/>
@@ -31,9 +31,20 @@
                                             <TextBlock IsVisible="{Binding !HasDoor}" Text="Sans porte" Foreground="#555"/>
                                         </StackPanel>
 
-                                        <Button Grid.Column="1" 
-                                                Content="Supprimer" 
-                                                Foreground="Red" 
+                                        <Button Grid.Column="1"
+                                                Content="Modifier"
+                                                Foreground="#2196F3"
+                                                Background="Transparent"
+                                                FontWeight="Bold"
+                                                Margin="0,0,10,0"
+                                                VerticalAlignment="Center"
+                                                x:CompileBindings="False"
+                                                Command="{Binding $parent[UserControl].DataContext.EditLockerCommand}"
+                                                CommandParameter="{Binding}"/>
+
+                                        <Button Grid.Column="2"
+                                                Content="Supprimer"
+                                                Foreground="Red"
                                                 Background="Transparent"
                                                 FontWeight="Bold"
                                                 VerticalAlignment="Center"
@@ -70,7 +81,7 @@
                     VerticalAlignment="Center" HorizontalAlignment="Center" Width="400"
                     BoxShadow="0 10 30 0 #40000000">
                 <StackPanel Spacing="20">
-                    <TextBlock Text="Nouveau Casier" FontSize="22" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding PopupTitle}" FontSize="22" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center"/>
 
                     <StackPanel>
                         <TextBlock Text="Hauteur (cm)" FontWeight="SemiBold" Foreground="Black"/>
@@ -88,11 +99,8 @@
                                   Foreground="Black">
                             <CheckBox.Resources>
                                 <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeUnchecked" Color="Gray" />
-
                                 <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillChecked" Color="#2196F3" />
-
                                 <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeChecked" Color="#2196F3" />
-
                                 <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundChecked" Color="White" />
                             </CheckBox.Resources>
                         </CheckBox>
