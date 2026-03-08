@@ -10,6 +10,13 @@
 
         <TextBlock Text="{Binding FinalCabinet.Lockers.Count, StringFormat='Votre armoire contient {0} casiers.'}" Foreground="Gray" FontSize="18"/>
 
+        <StackPanel Orientation="Horizontal" Spacing = "12" HorizontalAlignment="Center">
+            <Button Content= "Ajouter au panier"
+                    Command="{Binding AddToCartCommand}"
+                    Classes="primary"
+                    Padding="15"
+                    HorizontalAlignment = "Center"/>
+        </StackPanel>
         <Button Content="Retour à la personnalisation"
                 Command="{Binding GoBackCommand}"
                 Classes="secondary"

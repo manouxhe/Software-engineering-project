@@ -1,0 +1,16 @@
+<!-- File: Views/FinalizePage.axaml -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KitBox.ViewModels"
+             x:Class="KitBox.Views.FinalizePage"
+             x:DataType="vm:FinalizeViewModel"
+             Background="White">
+
+  <StackPanel Margin="30" Spacing="12">
+    <TextBlock Text="Finalisation" FontSize="28" FontWeight="Bold"/>
+    <TextBlock Text="{Binding Items.Count, StringFormat='Votre panier contient {0} commande(s).'}"/>
+
+    <Button Grid.Row="1" HorizontalAlignment ="Center" Content="Payer" Command="{Binding ClearCartCommand}" Classes="secondary" Padding="12"/>
+    <Border Grid.Row="2"/>
+</StackPanel>
+</UserControl>

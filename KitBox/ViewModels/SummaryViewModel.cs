@@ -9,6 +9,7 @@ namespace KitBox.ViewModels
         private readonly MainViewModel _main;
         public Cabinet FinalCabinet { get; }
         public ICommand GoBackCommand { get; }
+        public ICommand AddToCartCommand {get;}
 
         public SummaryViewModel(MainViewModel main, Cabinet cabinet)
         {
@@ -19,6 +20,11 @@ namespace KitBox.ViewModels
             GoBackCommand = ReactiveCommand.Create(() =>
             {
                 _main.NavigateTo(new CustomizationViewModel(_main, FinalCabinet));
+            });
+
+            AddToCartCommand = ReactiveCommand.Create (() =>
+            {
+                _main.AddToCart(FinalCabinet);
             });
         }
     }
