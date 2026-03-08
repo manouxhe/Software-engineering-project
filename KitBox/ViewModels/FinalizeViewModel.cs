@@ -103,7 +103,7 @@ namespace KitBox.ViewModels
             }
 
             Items.Clear();
-            PaymentMessage = "Paiement validé ✅ Merci pour votre petite commande.";
+            PaymentMessage = "Paiement validé ! Merci pour votre petite commande.";
         }
 
         private static bool IsValidEmail(string? value)  //expression reg 
