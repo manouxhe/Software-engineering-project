@@ -71,7 +71,7 @@
                             Padding="8,2"/>
                     <Button Grid.Row="2" Grid.Column="1"
                             Content="🔄️"
-                            Command="{Binding #RootWindow.DataContext.RemoveFromCartCommand}"
+                            Command="{Binding #RootWindow.DataContext.EditCabinet}"
                             CommandParameter="{Binding}"
                             Padding="8,2"/>
                   </Grid>
