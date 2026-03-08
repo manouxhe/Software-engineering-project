@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KitBox.ViewModels"
+             xmlns:local="clr-namespace:KitBox"
              x:Class="KitBox.Views.CustomizationPage"
              x:DataType="vm:CustomizationViewModel"
              Background="White">
@@ -91,8 +92,23 @@
                 </StackPanel>
             </Grid>
 
-            <Border Grid.Column="1" Background="#E0E0E0" Margin="20" CornerRadius="8">
-                <TextBlock Text="Aperçu visuel (Bientôt)" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#777"/>
+            <Border Grid.Column="1" Background="White" Margin="20" CornerRadius="8" BoxShadow="0 4 15 0 #20000000">
+                <Grid>
+                    <local:LockerVisualizer
+                    LockersSource="{Binding CurrentCabinet.Lockers}"
+                    AngleIronBrush="{Binding SelectedAngleIronColor}"
+                    CabinetWidth="{Binding CurrentCabinet.Width}"
+                    CabinetDepth="{Binding CurrentCabinet.Depth}"
+                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Stretch" />
+
+                    <TextBlock Text="Ajoutez un casier pour voir l'aperçu"
+                               IsVisible="{Binding !CurrentCabinet.Lockers.Count}"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"
+                               Foreground="#777"
+                               FontStyle="Italic"/>
+                </Grid>
             </Border>
         </Grid>
 

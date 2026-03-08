@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Reactive;
-using System.Linq; // AJOUT : Nécessaire pour inverser la liste au démarrage
+using System.Linq;
 using ReactiveUI;
 using KitBox.Models;
 using KitBox.Services;
@@ -33,7 +33,6 @@ namespace KitBox.ViewModels
         public ObservableCollection<string> AvailableHeights { get; }
         public ObservableCollection<string> AvailablePanelColors { get; }
         public ObservableCollection<string> AvailableDoorColors { get; }
-
         public ObservableCollection<string> AvailableAngleIronColors { get; }
 
         private string? _selectedHeight;
@@ -57,6 +56,12 @@ namespace KitBox.ViewModels
                 this.RaiseAndSetIfChanged(ref _selectedAngleIronColor, value);
                 // On sauvegarde directement la couleur dans l'armoire quand l'utilisateur change la valeur
                 if (value != null) CurrentCabinet.AngleIronColor = value;
+                if (value != null)
+                {
+                    CurrentCabinet.AngleIronColor = value;
+                    //On prévient le visuel que la couleur des cornières a changé
+                    this.RaisePropertyChanged(nameof(CurrentCabinet));
+                }
             }
         }
 
@@ -66,7 +71,6 @@ namespace KitBox.ViewModels
         public ReactiveCommand<Unit, Unit> ValidateLockerCommand { get; }
         public ReactiveCommand<Locker, Unit> DeleteLockerCommand { get; }
         public ReactiveCommand<Locker, Unit> EditLockerCommand { get; }
-
         public ReactiveCommand<Unit, Unit> NextCommand { get; }
 
         public CustomizationViewModel(MainViewModel main, Cabinet cabinet)
@@ -74,11 +78,10 @@ namespace KitBox.ViewModels
             _main = main;
             CurrentCabinet = cabinet;
 
-            // MODIFICATION : Au chargement, on inverse l'ordre pour que le casier n°1 soit en bas
             if (cabinet.Lockers != null)
             {
                 var reversedLockers = cabinet.Lockers.AsEnumerable().Reverse();
-                Lockers = new ObservableCollection<Locker>(reversedLockers);
+                foreach (var l in reversedLockers) Lockers.Add(l);
             }
 
             var options = PartService.GetLockerOptions();
@@ -105,7 +108,6 @@ namespace KitBox.ViewModels
             });
 
             CancelPopupCommand = ReactiveCommand.Create(() => { IsPopupOpen = false; _editingLocker = null; });
-
             DeleteLockerCommand = ReactiveCommand.Create<Locker>(OnDeleteLocker);
             EditLockerCommand = ReactiveCommand.Create<Locker>(OnEditLocker);
 
@@ -126,15 +128,12 @@ namespace KitBox.ViewModels
         private void OnEditLocker(Locker lockerToEdit)
         {
             if (lockerToEdit == null) return;
-
             _editingLocker = lockerToEdit;
             PopupTitle = $"Modifier le casier n°{lockerToEdit.Position}";
-
             SelectedHeight = lockerToEdit.Height.ToString();
             SelectedPanelColor = lockerToEdit.PanelColor;
             HasDoor = lockerToEdit.HasDoor;
             SelectedDoorColor = lockerToEdit.DoorColor;
-
             IsPopupOpen = true;
         }
 
@@ -149,10 +148,7 @@ namespace KitBox.ViewModels
                 _editingLocker.DoorColor = HasDoor ? SelectedDoorColor : null;
 
                 int index = Lockers.IndexOf(_editingLocker);
-                if (index != -1)
-                {
-                    Lockers[index] = _editingLocker;
-                }
+                if (index != -1) Lockers[index] = _editingLocker;
             }
             else
             {
@@ -163,19 +159,20 @@ namespace KitBox.ViewModels
                     PanelColor = SelectedPanelColor!,
                     HasDoor = HasDoor,
                     DoorColor = HasDoor ? SelectedDoorColor : null,
-                    // MODIFICATION : On se base sur l'armoire réelle pour calculer la position
                     Position = CurrentCabinet.Lockers.Count + 1
                 };
 
                 // L'armoire (les données) garde l'ordre logique
                 CurrentCabinet.Lockers.Add(newLocker);
-
                 // L'affichage visuel insère le nouveau à la position 0 (tout en haut)
                 Lockers.Insert(0, newLocker);
             }
 
             IsPopupOpen = false;
             _editingLocker = null;
+
+            // Très important pour forcer le redessin du LockerVisualizer
+            this.RaisePropertyChanged(nameof(CurrentCabinet));
         }
 
         private void OnDeleteLocker(Locker lockerToDelete)
@@ -185,18 +182,15 @@ namespace KitBox.ViewModels
                 Lockers.Remove(lockerToDelete);
                 CurrentCabinet.Lockers.Remove(lockerToDelete);
 
-                // 1. Recalculer les positions selon l'ordre réel (CurrentCabinet)
                 for (int i = 0; i < CurrentCabinet.Lockers.Count; i++)
                 {
                     CurrentCabinet.Lockers[i].Position = i + 1;
                 }
 
-                // 2. Rafraîchir l'affichage en reprenant la liste réelle à l'envers
                 Lockers.Clear();
-                for (int i = CurrentCabinet.Lockers.Count - 1; i >= 0; i--)
-                {
-                    Lockers.Add(CurrentCabinet.Lockers[i]);
-                }
+                foreach (var l in CurrentCabinet.Lockers.AsEnumerable().Reverse()) Lockers.Add(l);
+
+                this.RaisePropertyChanged(nameof(CurrentCabinet));
             }
         }
     }
