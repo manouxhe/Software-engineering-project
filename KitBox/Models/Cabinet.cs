@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-
+using System.Collections.ObjectModel;
 namespace KitBox.Models
 {
     public class Cabinet
@@ -20,6 +20,6 @@ namespace KitBox.Models
         public string AngleIronColor { get; set; } = "White"; // Valeur par défaut
 
         // Relation: Une armoire est composée de casiers (1..7)
-        public List<Locker> Lockers { get; set; } = new List<Locker>();
+        public ObservableCollection<Locker> Lockers { get; set; } = new ObservableCollection<Locker>();
     }
 }

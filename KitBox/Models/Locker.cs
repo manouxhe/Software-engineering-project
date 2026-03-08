@@ -5,15 +5,40 @@ namespace KitBox.Models
     {
         public int Id { get; set; }
         public int CabinetId { get; set; }
+
         private int _position;
         public int Position
         {
             get => _position;
             set => SetProperty(ref _position, value);
         }
-        public int Height { get; set; }
-        public string PanelColor { get; set; } = string.Empty;
-        public bool HasDoor { get; set; }
-        public string? DoorColor { get; set; } // Nullable car il n'y a pas toujours de porte
+
+        private int _height;
+        public int Height
+        {
+            get => _height;
+            set => SetProperty(ref _height, value);
+        }
+
+        private string _panelColor = string.Empty;
+        public string PanelColor
+        {
+            get => _panelColor;
+            set => SetProperty(ref _panelColor, value);
+        }
+
+        private bool _hasDoor;
+        public bool HasDoor
+        {
+            get => _hasDoor;
+            set => SetProperty(ref _hasDoor, value);
+        }
+
+        private string? _doorColor;
+        public string? DoorColor
+        {
+            get => _doorColor;
+            set => SetProperty(ref _doorColor, value);
+        }
     }
 }
