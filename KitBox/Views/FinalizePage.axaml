@@ -1,4 +1,3 @@
-<!-- File: Views/FinalizePage.axaml -->
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KitBox.ViewModels"
@@ -6,11 +5,58 @@
              x:DataType="vm:FinalizeViewModel"
              Background="White">
 
-  <StackPanel Margin="30" Spacing="12">
-    <TextBlock Text="Finalisation" FontSize="28" FontWeight="Bold"/>
-    <TextBlock Text="{Binding Items.Count, StringFormat='Votre panier contient {0} commande(s).'}"/>
+  <ScrollViewer>
+    <StackPanel Margin="30" Spacing="14">
+      <TextBlock Text="Finalisation de l'achat" FontSize="28" FontWeight="Bold"/>
+      <TextBlock Text="{Binding Items.Count, StringFormat='Votre panier contient {0} armoire(s).'}"/>
 
-    <Button Grid.Row="1" HorizontalAlignment ="Center" Content="Payer" Command="{Binding ClearCartCommand}" Classes="secondary" Padding="12"/>
-    <Border Grid.Row="2"/>
-</StackPanel>
+      <Border Background="#F4F4F4" Padding="12" CornerRadius="8">
+        <ItemsControl ItemsSource="{Binding Items}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Margin="0,0,0,8">
+                <TextBlock Text="{Binding Width, StringFormat='Armoire : largeur {0}'}" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Depth, StringFormat='Profondeur : {0}'}"/>
+                <TextBlock Text="{Binding Lockers.Count, StringFormat='Casiers : {0}'}"/>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Border>
+
+      <TextBlock Text="{Binding TotalPrice, StringFormat='Total estimé : {0} €'}" FontSize="18" FontWeight="SemiBold"/>
+      <TextBlock Text="{Binding PaymentMessage}" TextWrapping="Wrap"/>
+
+      <ItemsControl ItemsSource="{Binding InfoMessages}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding .}" Foreground="#8A6D3B" TextWrapping="Wrap"/>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <ItemsControl ItemsSource="{Binding StockAlerts}" IsVisible="{Binding HasStockIssue}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding .}" Foreground="#CC0000" TextWrapping="Wrap"/>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <TextBox Watermark="Votre adresse e-mail"
+               Text="{Binding EmailAddress}"
+               IsVisible="{Binding HasStockIssue}"/>
+
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <Button Content="Finaliser / Payer"
+                Command="{Binding PayCommand}"
+                Classes="primary"
+                Padding="12"/>
+        <Button Content="Retour accueil"
+                Command="{Binding GoHomeCommand}"
+                Classes="secondary"
+                Padding="12"/>
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
 </UserControl>

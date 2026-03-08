@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MySqlConnector;
+using KitBox.Models;
 
 namespace KitBox.Services
 {
@@ -18,10 +19,8 @@ namespace KitBox.Services
             {
                 using (var connection = new MySqlConnection(ConnectionString))
                 {
-                    // We open the connection to the database
                     connection.Open();
 
-                    // 1. Get the unique widths (Width) for panels of kind 'Bottom or top panel' where Width > 0
                     string widthQuery = "SELECT DISTINCT Width FROM Part WHERE Kind = 'Bottom or top panel' AND Width > 0 ORDER BY Width;";
                     using (var cmd = new MySqlCommand(widthQuery, connection))
                     using (var reader = cmd.ExecuteReader())
@@ -32,7 +31,6 @@ namespace KitBox.Services
                         }
                     }
 
-                    // 2. Get the unique depths (Depth) for the same kind of panels
                     string depthQuery = "SELECT DISTINCT Depth FROM Part WHERE Kind = 'Bottom or top panel' AND Depth > 0 ORDER BY Depth;";
                     using (var cmd = new MySqlCommand(depthQuery, connection))
                     using (var reader = cmd.ExecuteReader())
@@ -46,9 +44,7 @@ namespace KitBox.Services
             }
             catch (Exception ex)
             {
-                // If DB connection fails, log the error and provide default dimensions
                 Console.WriteLine($"Erreur de base de données : {ex.Message}");
-
                 if (widths.Count == 0) widths.AddRange(new[] { 10, 42 });
                 if (depths.Count == 0) depths.AddRange(new[] { 32, 42 });
             }
@@ -65,7 +61,7 @@ namespace KitBox.Services
             var heights = new List<string>();
             var panelColors = new List<string>();
             var doorColors = new List<string>();
-            var angleIronColors = new List<string>(); // AJOUT 1 : La liste pour stocker les couleurs des cornières
+            var angleIronColors = new List<string>();
 
             try
             {
@@ -73,40 +69,53 @@ namespace KitBox.Services
                 {
                     connection.Open();
 
-                    // 1. Hauteurs disponibles (Panneaux de côté/fond)
                     string heightQuery = "SELECT DISTINCT Height FROM Part WHERE Height > 0 AND Kind != 'Angle iron' ORDER BY Height;";
                     using (var cmd = new MySqlCommand(heightQuery, connection))
                     using (var reader = cmd.ExecuteReader())
-                        while (reader.Read()) heights.Add(reader.GetInt32("Height").ToString());
+                    {
+                        while (reader.Read())
+                        {
+                            heights.Add(reader.GetInt32("Height").ToString());
+                        }
+                    }
 
-                    // 2. Couleurs des panneaux (Panneau arrière, côté, etc.)
                     string panelQuery = "SELECT DISTINCT Color FROM Part WHERE Kind LIKE '%panel%' AND Color IS NOT NULL ORDER BY Color;";
                     using (var cmd = new MySqlCommand(panelQuery, connection))
                     using (var reader = cmd.ExecuteReader())
-                        while (reader.Read()) panelColors.Add(reader.GetString("Color"));
+                    {
+                        while (reader.Read())
+                        {
+                            panelColors.Add(reader.GetString("Color"));
+                        }
+                    }
 
-                    // 3. Couleurs des portes (Door)
                     string doorQuery = "SELECT DISTINCT Color FROM Part WHERE Kind = 'Door' AND Color IS NOT NULL ORDER BY Color;";
                     using (var cmd = new MySqlCommand(doorQuery, connection))
                     using (var reader = cmd.ExecuteReader())
-                        while (reader.Read()) doorColors.Add(reader.GetString("Color"));
+                    {
+                        while (reader.Read())
+                        {
+                            doorColors.Add(reader.GetString("Color"));
+                        }
+                    }
 
-                    // AJOUT 2 : Couleurs des cornières (Angle iron)
                     string angleQuery = "SELECT DISTINCT Color FROM Part WHERE Kind = 'Angle iron' AND Color IS NOT NULL ORDER BY Color;";
                     using (var cmd = new MySqlCommand(angleQuery, connection))
                     using (var reader = cmd.ExecuteReader())
-                        while (reader.Read()) angleIronColors.Add(reader.GetString("Color"));
+                    {
+                        while (reader.Read())
+                        {
+                            angleIronColors.Add(reader.GetString("Color"));
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur DB: {ex.Message}");
-                // Valeurs de secours au cas où
                 if (heights.Count == 0) heights.AddRange(new[] { "10", "42", "52" });
                 if (panelColors.Count == 0) panelColors.AddRange(new[] { "Bleu", "Brun" });
                 if (doorColors.Count == 0) doorColors.AddRange(new[] { "Bleu", "Brun", "Verre" });
-
-                // AJOUT 3 : Valeurs de secours pour les cornières
                 if (angleIronColors.Count == 0) angleIronColors.AddRange(new[] { "Blanc", "Noir", "Galvanisé" });
             }
 
@@ -115,8 +124,178 @@ namespace KitBox.Services
                 { "Heights", heights },
                 { "PanelColors", panelColors },
                 { "DoorColors", doorColors },
-                { "AngleIronColors", angleIronColors } // AJOUT 4 : On retourne la nouvelle liste
+                { "AngleIronColors", angleIronColors }
             };
+        }
+
+        public static PartCheckoutResult GetCheckoutDetails(Cabinet cabinet)
+        {
+            var result = new PartCheckoutResult();
+
+            if (cabinet == null)
+            {
+                result.Messages.Add("Armoire invalide pour le calcul du panier.");
+                return result;
+            }
+
+            try
+            {
+                using var connection = new MySqlConnection(ConnectionString);
+                connection.Open();
+
+                AddPartLine(connection, result, "Bottom or top panel", cabinet.Width, cabinet.Depth, null, null, 2, "Panneaux haut/bas");
+                AddPartLine(connection, result, "Angle iron", null, null, null, cabinet.AngleIronColor, 4, "Cornières de structure");
+
+                foreach (var locker in cabinet.Lockers)
+                {
+                    AddPartLine(connection, result, "Bottom or top panel", cabinet.Width, cabinet.Depth, null, locker.PanelColor, 1, $"Tablette casier {locker.Position}");
+                    AddPartLine(connection, result, "Side panel", null, cabinet.Depth, locker.Height, locker.PanelColor, 2, $"Panneaux latéraux casier {locker.Position}");
+                    AddPartLine(connection, result, "Back panel", cabinet.Width, null, locker.Height, locker.PanelColor, 1, $"Panneau arrière casier {locker.Position}");
+
+                    if (locker.HasDoor)
+                    {
+                        AddPartLine(connection, result, "Door", cabinet.Width, null, locker.Height, locker.DoorColor, 1, $"Porte casier {locker.Position}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Messages.Add($"Connexion à la base de données indisponible ({ex.Message}). Le prix affiché est une estimation à 0 €.");
+            }
+
+            return result;
+        }
+
+        private static void AddPartLine(
+            MySqlConnection connection,
+            PartCheckoutResult checkout,
+            string logicalKind,
+            int? width,
+            int? depth,
+            int? height,
+            string? color,
+            int quantity,
+            string label)
+        {
+            var kindCandidates = BuildKindCandidates(logicalKind);
+
+            // 1) tentative exacte (kind + dimensions + couleur)
+            if (TryReadPart(connection, kindCandidates, width, depth, height, color, includeColor: true, out var stock, out var unitPrice))
+            {
+                checkout.TotalPrice += unitPrice * quantity;
+                if (stock < quantity)
+                {
+                    checkout.MissingItems.Add(new PartStockAlert(label, quantity, stock));
+                }
+                return;
+            }
+
+            // 2) fallback sans couleur: la pièce existe mais la couleur choisie est indisponible
+            if (!string.IsNullOrWhiteSpace(color)
+                && TryReadPart(connection, kindCandidates, width, depth, height, color, includeColor: false, out _, out var fallbackPrice))
+            {
+                checkout.TotalPrice += fallbackPrice * quantity;
+                checkout.MissingItems.Add(new PartStockAlert(label, quantity, 0));
+                checkout.Messages.Add($"{label} disponible dans d'autres couleurs, mais pas en {color}.");
+                return;
+            }
+
+            checkout.Messages.Add($"{label} introuvable en base ({logicalKind}).");
+        }
+
+        private static string[] BuildKindCandidates(string logicalKind)
+        {
+            if (logicalKind.Equals("Side panel", StringComparison.OrdinalIgnoreCase))
+            {
+                return new[] { "Side panel", "Side and back panel", "Lateral panel" };
+            }
+
+            if (logicalKind.Equals("Back panel", StringComparison.OrdinalIgnoreCase))
+            {
+                return new[] { "Back panel", "Side and back panel" };
+            }
+
+            if (logicalKind.Equals("Bottom or top panel", StringComparison.OrdinalIgnoreCase))
+            {
+                return new[] { "Bottom or top panel", "Bottom panel", "Top panel" };
+            }
+
+            if (logicalKind.Equals("Angle iron", StringComparison.OrdinalIgnoreCase))
+            {
+                return new[] { "Angle iron" };
+            }
+
+            if (logicalKind.Equals("Door", StringComparison.OrdinalIgnoreCase))
+            {
+                return new[] { "Door" };
+            }
+
+            return new[] { logicalKind };
+        }
+
+        private static bool TryReadPart(
+            MySqlConnection connection,
+            IEnumerable<string> kindCandidates,
+            int? width,
+            int? depth,
+            int? height,
+            string? color,
+            bool includeColor,
+            out int stock,
+            out decimal unitPrice)
+        {
+            stock = 0;
+            unitPrice = 0;
+
+            foreach (var kind in kindCandidates)
+            {
+                using var cmd = new MySqlCommand();
+                cmd.Connection = connection;
+
+                var whereClauses = new List<string> { "LOWER(Kind) = LOWER(@kind)" };
+                cmd.Parameters.AddWithValue("@kind", kind);
+
+                if (width.HasValue)
+                {
+                    whereClauses.Add("Width = @width");
+                    cmd.Parameters.AddWithValue("@width", width.Value);
+                }
+
+                if (depth.HasValue)
+                {
+                    whereClauses.Add("Depth = @depth");
+                    cmd.Parameters.AddWithValue("@depth", depth.Value);
+                }
+
+                if (height.HasValue)
+                {
+                    whereClauses.Add("Height = @height");
+                    cmd.Parameters.AddWithValue("@height", height.Value);
+                }
+
+                if (includeColor && !string.IsNullOrWhiteSpace(color))
+                {
+                    whereClauses.Add("LOWER(Color) = LOWER(@color)");
+                    cmd.Parameters.AddWithValue("@color", color);
+                }
+
+                cmd.CommandText = $@"
+                    SELECT In_Stock AS InStock, Customer_price AS CustomerPrice
+                    FROM Part
+                    WHERE {string.Join(" AND ", whereClauses)}
+                    ORDER BY In_Stock DESC
+                    LIMIT 1;";
+
+                using var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    stock = reader.GetInt32("InStock");
+                    unitPrice = reader.GetDecimal("CustomerPrice");
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
