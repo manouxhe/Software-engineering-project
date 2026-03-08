@@ -50,12 +50,18 @@ namespace KitBox.ViewModels
                 if (cab != null) CartItems.Remove(cab);
             });
 
+            ///Bouton "Finaliser" grisé si le panier ne contient pas d'armoire
+            var canFinalize = this.WhenAnyValue(
+                x => x.CartItems.Count,
+                count => count>0
+            );
+
             FinalizeCommand = ReactiveCommand.Create(() =>
             {
                 ///ferme le panier et va à la page de finalisation
                 CartOpen = false;
                 NavigateTo(new FinalizeViewModel(this, CartItems));
-            });
+            }, canFinalize);
 
             AddNewCabinet = ReactiveCommand.Create(() =>
             {
