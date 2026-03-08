@@ -36,6 +36,7 @@ namespace KitBox.ViewModels
         public ICommand CloseCartCommand { get; }
         public ICommand RemoveFromCartCommand { get; }
         public ICommand FinalizeCommand { get; }
+        public ICommand AddNewCabinet {get;}
         public MainViewModel()
         {
             // Au démarrage de l'application, on affiche la page d'accueil et le panier
@@ -53,6 +54,13 @@ namespace KitBox.ViewModels
                 ///ferme le panier et va à la page de finalisation
                 CartOpen = false;
                 NavigateTo(new FinalizeViewModel(this, CartItems));
+            });
+
+            AddNewCabinet = ReactiveCommand.Create(() =>
+            {
+                ///ferme le panier et va à la page des dimensions
+                CartOpen = false;
+                NavigateTo(new DimensionsViewModel(this, null));
             });
 
         }
