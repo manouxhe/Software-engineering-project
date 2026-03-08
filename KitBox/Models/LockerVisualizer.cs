@@ -70,11 +70,9 @@ public class LockerVisualizer : Control
     private void OnLockersCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         => InvalidateVisual();
 
-    private Point Project(double x, double y, double z, Point origin, double scale)
+    private Point Project(double x, double y, double z, Point origin, double scale, double angleH, double angleV)
     {
         //les deux angles définissent le style de vue 3D
-        double angleH = Math.PI / 10;
-        double angleV = Math.PI / 14;
         double px = (x - z) * Math.Cos(angleH);
         double py = (x + z) * Math.Sin(angleV) - y;
         //on applique l'échelle
@@ -94,17 +92,26 @@ public class LockerVisualizer : Control
         var lockers = LockersSource.Cast<dynamic>().OrderBy(l => (int)l.Position).ToList();
 
         // On utilise les vraies dimensions du Cabinet
-        double cabinetWidth = CabinetWidth > 0 ? CabinetWidth : 60;
-        double cabinetDepth = CabinetDepth > 0 ? CabinetDepth : 40;
+        double realWidth = CabinetWidth > 0 ? CabinetWidth : 60;
+        double realDepth = CabinetDepth > 0 ? CabinetDepth : 40;
         //totalHeight est la somme de tous les casiers
         double totalHeight = lockers.Sum(l => (double)l.Height);
         if (totalHeight <= 0) totalHeight = 100;
 
-        double margin = 20;
+        // On normalise les dimensions pour que le ratio largeur/profondeur/hauteur
+        // soit respecté, mais que tout rentre toujours dans les bounds.
+        // On fixe une hauteur de référence, et on calcule largeur/profondeur proportionnellement.
+        double refHeight = 100.0; // unité de référence
+        double normWidth  = realWidth  / totalHeight * refHeight;
+        double normDepth  = realDepth  / totalHeight * refHeight;
+        double normHeight = refHeight;
+
         double angleH = Math.PI / 10;
         double angleV = Math.PI / 14;
-        double projectedWidth = (cabinetWidth + cabinetDepth) * Math.Cos(angleH);
-        double projectedHeight = (cabinetWidth + cabinetDepth) * Math.Sin(angleV) + totalHeight;
+        double margin = 30;
+
+        double projectedWidth  = (normWidth + normDepth) * Math.Cos(angleH);
+        double projectedHeight = (normWidth + normDepth) * Math.Sin(angleV) + normHeight;       
 
         double scale = Math.Min(
             (Bounds.Width - margin * 2) / projectedWidth,
@@ -112,7 +119,13 @@ public class LockerVisualizer : Control
         );
         if (scale <= 0) return;
 
-        Point origin = new Point(Bounds.Width / 2, margin + totalHeight * scale);
+        // Centrage horizontal et vertical dans les bounds
+        double totalProjectedW = projectedWidth  * scale;
+        double totalProjectedH = projectedHeight * scale;
+        double originX = Bounds.Width / 2;
+        double originY = margin + normHeight * scale;   
+
+        Point origin = new Point(originX, originY);
 
         IBrush ironBrush = AngleIronBrush is string s ? ParseColor(s) : (AngleIronBrush as IBrush ?? Brushes.Black);
         Pen outlinePen = new Pen(Brushes.Black, 0.8);
@@ -122,7 +135,9 @@ public class LockerVisualizer : Control
 
         foreach (var locker in lockers)
         {
-            double h = (double)locker.Height;
+            double rawH = (double)locker.Height;
+            double h = rawH / totalHeight * normHeight;
+
             bool hasDoor = (bool)locker.HasDoor;
             string? doorColorStr = locker.DoorColor?.ToString();
             bool isGlassDoor = hasDoor && IsTransparentColor(doorColorStr);
@@ -133,22 +148,22 @@ public class LockerVisualizer : Control
             IBrush innerBrush = DarkenBrush(panelBrush, 0.80);
             IBrush shelfBrush = DarkenBrush(panelBrush, 0.65);
 
-            double fz = cabinetDepth / 2;   //fz est la profondeur de la face avant
-            double bz = -cabinetDepth * 0.3;    //bz est ou se trouve le fond intérieur
+            double fz = normDepth / 2;   //fz est la profondeur de la face avant
+            double bz = -normDepth * 0.3;    //bz est ou se trouve le fond intérieur
             //on projette les 8 coins du cube en 2D (L/R pour préciser si gauche ou droite et F/B pour avant/arriere)
-            Point bFL = Project(-cabinetWidth / 2, currentY, fz, origin, scale);
-            Point bFR = Project(cabinetWidth / 2, currentY, fz, origin, scale);
-            Point tFL = Project(-cabinetWidth / 2, currentY + h, fz, origin, scale);
-            Point tFR = Project(cabinetWidth / 2, currentY + h, fz, origin, scale);
-            Point bBL = Project(-cabinetWidth / 2, currentY, -cabinetDepth / 2, origin, scale);
-            Point bBR = Project(cabinetWidth / 2, currentY, -cabinetDepth / 2, origin, scale);
-            Point tBL = Project(-cabinetWidth / 2, currentY + h, -cabinetDepth / 2, origin, scale);
-            Point tBR = Project(cabinetWidth / 2, currentY + h, -cabinetDepth / 2, origin, scale);
+            Point bFL = Project(-normWidth / 2, currentY, fz, origin, scale, angleH, angleV);
+            Point bFR = Project(normWidth / 2, currentY, fz, origin, scale, angleH, angleV);
+            Point tFL = Project(-normWidth / 2, currentY + h, fz, origin, scale, angleH, angleV);
+            Point tFR = Project(normWidth / 2, currentY + h, fz, origin, scale, angleH, angleV);
+            Point bBL = Project(-normWidth / 2, currentY, -normDepth / 2, origin, scale, angleH, angleV);
+            Point bBR = Project(normWidth / 2, currentY, -normDepth / 2, origin, scale, angleH, angleV);
+            Point tBL = Project(-normWidth / 2, currentY + h, -normDepth / 2, origin, scale, angleH, angleV);
+            Point tBR = Project(normWidth / 2, currentY + h, -normDepth / 2, origin, scale, angleH, angleV);
             //les 4 coins intérieurs
-            Point ibFL = Project(-cabinetWidth / 2, currentY, bz, origin, scale);
-            Point ibFR = Project(cabinetWidth / 2, currentY, bz, origin, scale);
-            Point itFL = Project(-cabinetWidth / 2, currentY + h, bz, origin, scale);
-            Point itFR = Project(cabinetWidth / 2, currentY + h, bz, origin, scale);
+            Point ibFL = Project(-normWidth / 2, currentY, bz, origin, scale, angleH, angleV);
+            Point ibFR = Project(normWidth / 2, currentY, bz, origin, scale, angleH, angleV);
+            Point itFL = Project(-normWidth / 2, currentY + h, bz, origin, scale, angleH, angleV);
+            Point itFR = Project(normWidth / 2, currentY + h, bz, origin, scale, angleH, angleV);
             //on dessine la face droite en relient le bas avant au bas arriere etc
             DrawFace(context, sideBrush, outlinePen, bFR, bBR, tBR, tFR);
             //on dessine le dessus
@@ -167,7 +182,7 @@ public class LockerVisualizer : Control
             {
                 IBrush doorBrush = ParseColor(doorColorStr);
                 DrawFace(context, doorBrush, outlinePen, bFL, bFR, tFR, tFL);
-                var handlePos = Project(cabinetWidth / 4, currentY + h / 2, fz, origin, scale);
+                var handlePos = Project(normWidth / 4, currentY + h / 2, fz, origin, scale, angleH, angleV);
                 context.DrawEllipse(Brushes.Silver, new Pen(Brushes.Gray, 0.5), handlePos, 3, 3);//poignée
             }
             //dessin des cornière
