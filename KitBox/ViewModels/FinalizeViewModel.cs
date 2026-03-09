@@ -20,6 +20,7 @@ namespace KitBox.ViewModels
             set => this.RaiseAndSetIfChanged(ref _hasStockIssue, value);
         }
 
+        // On utilisera ce champ comme "Nom de client" pour la base de données
         private string _emailAddress = string.Empty;
         public string EmailAddress
         {
@@ -86,7 +87,7 @@ namespace KitBox.ViewModels
 
             if (HasStockIssue)
             {
-                PaymentMessage = "Stock limité sur certains articles : laissez votre e-mail pour recevoir une notification de retour en stock .";
+                PaymentMessage = "Stock limité sur certains articles : laissez votre e-mail pour recevoir une notification de retour en stock.";
             }
             else
             {
@@ -96,17 +97,47 @@ namespace KitBox.ViewModels
 
         private void OnPay()
         {
-            if (HasStockIssue)
+            bool allSuccess = true;
+
+            // 1. On parcourt toutes les armoires du panier
+            foreach (var cabinet in Items)
             {
-                PaymentMessage = $"Merci ! Un e-mail sera envoyé à {EmailAddress} dès que les pièces manquantes seront disponibles.";
-                return;
+                // On recalcule pour récupérer les pièces exactes (UsedParts) à déduire du stock
+                var checkout = PartService.GetCheckoutDetails(cabinet);
+
+                // On utilise l'email comme identifiant client
+                string nomClient = string.IsNullOrWhiteSpace(EmailAddress) ? "Client" : EmailAddress;
+
+                // 2. On lance la TRANSACTION SQL (Sauvegarde Commande + Armoire + Casiers + MàJ Stock)
+                bool success = OrderService.FinalizeOrder(nomClient, cabinet, checkout.UsedParts);
+
+                if (!success)
+                {
+                    allSuccess = false;
+                }
             }
 
-            Items.Clear();
-            PaymentMessage = "Paiement validé ! Merci pour votre petite commande.";
+            // 3. Gestion de l'affichage après la tentative de sauvegarde
+            if (allSuccess)
+            {
+                Items.Clear(); // On vide le panier car tout a été enregistré
+
+                if (HasStockIssue)
+                {
+                    PaymentMessage = $"Commande enregistrée en base de données ! Un e-mail sera envoyé à {EmailAddress} dès l'arrivée des pièces.";
+                }
+                else
+                {
+                    PaymentMessage = "Paiement validé ! Votre commande est enregistrée et le stock a été mis à jour.";
+                }
+            }
+            else
+            {
+                PaymentMessage = "Erreur de connexion à la base de données. La commande a été annulée.";
+            }
         }
 
-        private static bool IsValidEmail(string? value)  //expression reg 
+        private static bool IsValidEmail(string? value)
         {
             if (string.IsNullOrWhiteSpace(value)) return false;
             return value.Contains('@') && value.Contains('.') && !value.EndsWith('.');

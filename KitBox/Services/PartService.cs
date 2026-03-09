@@ -206,23 +206,34 @@ namespace KitBox.Services
             var kindCandidates = BuildKindCandidates(logicalKind);
 
             // 1) Tentative exacte (kind + dimensions + couleur)
-            if (TryReadPart(connection, kindCandidates, width, depth, height, color, true, out var stock, out var unitPrice, out var delay))
+            // On passe bien 11 arguments ici
+            if (TryReadPart(connection, kindCandidates, width, depth, height, color, true, out var stock, out var unitPrice, out var delay, out string partId))
             {
                 checkout.TotalPrice += unitPrice * quantity;
+
+                // On garde l'ID de la pièce pour le déduire du stock
+                if (!checkout.UsedParts.ContainsKey(partId)) checkout.UsedParts[partId] = 0;
+                checkout.UsedParts[partId] += quantity;
+
                 if (stock < quantity)
                 {
                     checkout.MissingItems.Add(new PartStockAlert(label, quantity, stock));
-                    // AJOUT : On prévient l'utilisateur du délai du meilleur fournisseur
                     checkout.Messages.Add($"[Rupture] {label} : commande au fournisseur en cours (délai : {delay} jours).");
                 }
                 return;
             }
 
             // 2) Fallback sans couleur: la pièce existe mais la couleur choisie est indisponible
+            // On passe bien 11 arguments ici aussi
             if (!string.IsNullOrWhiteSpace(color)
-                && TryReadPart(connection, kindCandidates, width, depth, height, color, false, out _, out var fallbackPrice, out var fbDelay))
+                && TryReadPart(connection, kindCandidates, width, depth, height, color, false, out _, out var fallbackPrice, out var fbDelay, out string fbPartId))
             {
                 checkout.TotalPrice += fallbackPrice * quantity;
+
+                // On garde l'ID de la pièce de fallback
+                if (!checkout.UsedParts.ContainsKey(fbPartId)) checkout.UsedParts[fbPartId] = 0;
+                checkout.UsedParts[fbPartId] += quantity;
+
                 checkout.MissingItems.Add(new PartStockAlert(label, quantity, 0));
                 checkout.Messages.Add($"{label} disponible dans d'autres couleurs, mais pas en {color}. (Délai fournisseur : {fbDelay} jours).");
                 return;
@@ -267,11 +278,13 @@ namespace KitBox.Services
             bool includeColor,
             out int stock,
             out decimal unitPrice,
-            out int shippingDelay) // AJOUT : On récupère le délai du fournisseur
+            out int shippingDelay,
+            out string partId)
         {
             stock = 0;
             unitPrice = 0;
             shippingDelay = 0;
+            partId = string.Empty;
 
             foreach (var kind in kindCandidates)
             {

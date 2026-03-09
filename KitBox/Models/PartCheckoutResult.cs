@@ -7,6 +7,8 @@ namespace KitBox.Models
         public decimal TotalPrice { get; set; }
         public List<PartStockAlert> MissingItems { get; } = new();
         public List<string> Messages { get; } = new();
+
+        public Dictionary<string, int> UsedParts { get; } = new Dictionary<string, int>();
     }
 
     public class PartStockAlert
