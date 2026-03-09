@@ -207,7 +207,7 @@ namespace KitBox.Services
         {
             if (logicalKind.Equals("Side panel", StringComparison.OrdinalIgnoreCase))
             {
-                return new[] { "Side panel", "Side and back panel", "Lateral panel" };
+                return new[] { "Left or right panel", "Side panel", "Side and back panel", "Lateral panel" };
             }
 
             if (logicalKind.Equals("Back panel", StringComparison.OrdinalIgnoreCase))

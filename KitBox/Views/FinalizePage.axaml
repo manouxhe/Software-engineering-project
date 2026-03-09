@@ -24,8 +24,8 @@
         </ItemsControl>
       </Border>
 
-      <TextBlock Text="{Binding TotalPrice, StringFormat='Total estimé : {0} €'}" FontSize="18" FontWeight="SemiBold"/>
-      <TextBlock Text="{Binding PaymentMessage}" TextWrapping="Wrap"/>
+      <TextBlock Text="{Binding TotalPrice, StringFormat='Total estimé : {0} €'}" FontSize="18" FontWeight="SemiBold" Foreground="Black"/>
+      <TextBlock Text="{Binding PaymentMessage}" TextWrapping="Wrap" Foreground="Black"/>
 
       <ItemsControl ItemsSource="{Binding InfoMessages}">
         <ItemsControl.ItemTemplate>
