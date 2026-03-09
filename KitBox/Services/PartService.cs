@@ -205,24 +205,26 @@ namespace KitBox.Services
         {
             var kindCandidates = BuildKindCandidates(logicalKind);
 
-            // 1) tentative exacte (kind + dimensions + couleur)
-            if (TryReadPart(connection, kindCandidates, width, depth, height, color, includeColor: true, out var stock, out var unitPrice))
+            // 1) Tentative exacte (kind + dimensions + couleur)
+            if (TryReadPart(connection, kindCandidates, width, depth, height, color, true, out var stock, out var unitPrice, out var delay))
             {
                 checkout.TotalPrice += unitPrice * quantity;
                 if (stock < quantity)
                 {
                     checkout.MissingItems.Add(new PartStockAlert(label, quantity, stock));
+                    // AJOUT : On prévient l'utilisateur du délai du meilleur fournisseur
+                    checkout.Messages.Add($"[Rupture] {label} : commande au fournisseur en cours (délai : {delay} jours).");
                 }
                 return;
             }
 
-            // 2) fallback sans couleur: la pièce existe mais la couleur choisie est indisponible
+            // 2) Fallback sans couleur: la pièce existe mais la couleur choisie est indisponible
             if (!string.IsNullOrWhiteSpace(color)
-                && TryReadPart(connection, kindCandidates, width, depth, height, color, includeColor: false, out _, out var fallbackPrice))
+                && TryReadPart(connection, kindCandidates, width, depth, height, color, false, out _, out var fallbackPrice, out var fbDelay))
             {
                 checkout.TotalPrice += fallbackPrice * quantity;
                 checkout.MissingItems.Add(new PartStockAlert(label, quantity, 0));
-                checkout.Messages.Add($"{label} disponible dans d'autres couleurs, mais pas en {color}.");
+                checkout.Messages.Add($"{label} disponible dans d'autres couleurs, mais pas en {color}. (Délai fournisseur : {fbDelay} jours).");
                 return;
             }
 
@@ -256,60 +258,74 @@ namespace KitBox.Services
         }
 
         private static bool TryReadPart(
-            MySqlConnection connection, IEnumerable<string> kindCandidates,
-            int? width, int? depth, int? height, string? color,
-            bool includeColor, out int stock, out decimal unitPrice)
+            MySqlConnection connection,
+            IEnumerable<string> kindCandidates,
+            int? width,
+            int? depth,
+            int? height,
+            string? color,
+            bool includeColor,
+            out int stock,
+            out decimal unitPrice,
+            out int shippingDelay) // AJOUT : On récupère le délai du fournisseur
         {
             stock = 0;
             unitPrice = 0;
+            shippingDelay = 0;
 
             foreach (var kind in kindCandidates)
             {
                 using var cmd = new MySqlCommand();
                 cmd.Connection = connection;
-                var whereClauses = new List<string> { "LOWER(Kind) = LOWER(@kind)" };
+
+                // On préfixe avec 'p.' car on va joindre deux tables
+                var whereClauses = new List<string> { "LOWER(p.Kind) = LOWER(@kind)" };
                 cmd.Parameters.AddWithValue("@kind", kind);
 
                 if (width.HasValue)
                 {
-                    whereClauses.Add("Width = @width");
+                    whereClauses.Add("p.Width = @width");
                     cmd.Parameters.AddWithValue("@width", width.Value);
                 }
 
                 if (depth.HasValue)
                 {
-                    whereClauses.Add("Depth = @depth");
+                    whereClauses.Add("p.Depth = @depth");
                     cmd.Parameters.AddWithValue("@depth", depth.Value);
                 }
 
                 if (height.HasValue)
                 {
-                    // AJOUT CRUCIAL : Si c'est une cornière, on cherche une taille Supérieure ou Égale (>=) pour pouvoir la couper
                     if (kind.Contains("Angle iron", StringComparison.OrdinalIgnoreCase))
                     {
-                        whereClauses.Add("Height >= @height");
+                        whereClauses.Add("p.Height >= @height");
                     }
                     else
                     {
-                        whereClauses.Add("Height = @height");
+                        whereClauses.Add("p.Height = @height");
                     }
                     cmd.Parameters.AddWithValue("@height", height.Value);
                 }
 
                 if (includeColor && !string.IsNullOrWhiteSpace(color))
                 {
-                    whereClauses.Add("LOWER(Color) = LOWER(@color)");
+                    whereClauses.Add("LOWER(p.Color) = LOWER(@color)");
                     cmd.Parameters.AddWithValue("@color", color);
                 }
 
-                // On trie par Hauteur croissante pour les cornières (pour prendre la plus proche), sinon par Stock
+                // LE CŒUR DU CRITÈRE : Tri par Prix d'achat, puis par Délai de livraison
+                // (IFNULL permet de gérer le cas où une pièce n'a pas encore d'offre fournisseur associée)
                 string orderBy = kind.Contains("Angle iron", StringComparison.OrdinalIgnoreCase)
-                    ? "ORDER BY Height ASC, In_Stock DESC"
-                    : "ORDER BY In_Stock DESC";
+                    ? "ORDER BY p.Height ASC, IFNULL(so.Price, 999999) ASC, IFNULL(so.Shipping_time, 999) ASC"
+                    : "ORDER BY IFNULL(so.Price, 999999) ASC, IFNULL(so.Shipping_time, 999) ASC";
 
                 cmd.CommandText = $@"
-                    SELECT In_Stock AS InStock, Customer_price AS CustomerPrice
-                    FROM Part
+                    SELECT 
+                        p.In_Stock AS InStock, 
+                        p.Customer_price AS CustomerPrice,
+                        IFNULL(so.Shipping_time, 0) AS ShippingTime
+                    FROM Part p
+                    LEFT JOIN SupplierOffer so ON p.ID_PART = so.ID_PART
                     WHERE {string.Join(" AND ", whereClauses)}
                     {orderBy}
                     LIMIT 1;";
@@ -319,9 +335,11 @@ namespace KitBox.Services
                 {
                     stock = reader.GetInt32("InStock");
                     unitPrice = reader.GetDecimal("CustomerPrice");
+                    shippingDelay = reader.GetInt32("ShippingTime");
                     return true;
                 }
             }
+
             return false;
         }
     }

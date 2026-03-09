@@ -96,6 +96,11 @@ namespace KitBox.ViewModels
 
             GoBackCommand = ReactiveCommand.Create(() => _main.NavigateTo(new DimensionsViewModel(_main, CurrentCabinet)));
 
+            var canAddLocker = this.WhenAnyValue(
+            x => x.Lockers.Count,
+            count => count < 7
+            );
+
             OpenPopupCommand = ReactiveCommand.Create(() =>
             {
                 _editingLocker = null;
@@ -105,7 +110,7 @@ namespace KitBox.ViewModels
                 HasDoor = false;
                 SelectedDoorColor = null;
                 IsPopupOpen = true;
-            });
+            }, canAddLocker); // <-- AJOUT DE LA CONDITION ICI
 
             CancelPopupCommand = ReactiveCommand.Create(() => { IsPopupOpen = false; _editingLocker = null; });
             DeleteLockerCommand = ReactiveCommand.Create<Locker>(OnDeleteLocker);
