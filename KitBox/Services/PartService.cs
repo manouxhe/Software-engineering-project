@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MySqlConnector;
 using KitBox.Models;
+using System.Linq;
 
 namespace KitBox.Services
 {
@@ -131,36 +132,61 @@ namespace KitBox.Services
         public static PartCheckoutResult GetCheckoutDetails(Cabinet cabinet)
         {
             var result = new PartCheckoutResult();
-
-            if (cabinet == null)
-            {
-                result.Messages.Add("Armoire invalide pour le calcul du panier.");
-                return result;
-            }
+            if (cabinet == null) return result;
 
             try
             {
                 using var connection = new MySqlConnection(ConnectionString);
                 connection.Open();
 
-                AddPartLine(connection, result, "Bottom or top panel", cabinet.Width, cabinet.Depth, null, null, 2, "Panneaux haut/bas");
-                AddPartLine(connection, result, "Angle iron", null, null, null, cabinet.AngleIronColor, 4, "Cornières de structure");
+                // 1. Calcul de la hauteur totale pour les cornières (Somme des hauteurs + 4cm par épaisseur de casier)
+                int totalCabinetHeight = cabinet.Lockers.Sum(l => l.Height) + (cabinet.Lockers.Count * 4);
+
+                AddPartLine(connection, result, "Angle iron", null, null, totalCabinetHeight, cabinet.AngleIronColor, 4, "Cornières de structure");
 
                 foreach (var locker in cabinet.Lockers)
                 {
-                    AddPartLine(connection, result, "Bottom or top panel", cabinet.Width, cabinet.Depth, null, locker.PanelColor, 1, $"Tablette casier {locker.Position}");
-                    AddPartLine(connection, result, "Side panel", null, cabinet.Depth, locker.Height, locker.PanelColor, 2, $"Panneaux latéraux casier {locker.Position}");
-                    AddPartLine(connection, result, "Back panel", cabinet.Width, null, locker.Height, locker.PanelColor, 1, $"Panneau arrière casier {locker.Position}");
+                    string prefix = $"[Casier n°{locker.Position}]";
+
+                    AddPartLine(connection, result, "Vertical Batten", null, null, locker.Height, null, 4, $"{prefix} Tasseaux verticaux");
+                    AddPartLine(connection, result, "Front crossbar", cabinet.Width, null, null, null, 2, $"{prefix} Traverses avant");
+                    AddPartLine(connection, result, "Back crossbar", cabinet.Width, null, null, null, 2, $"{prefix} Traverses arrière");
+                    AddPartLine(connection, result, "Left or right crossbar", null, cabinet.Depth, null, null, 4, $"{prefix} Traverses latérales");
+                    AddPartLine(connection, result, "Bottom or top panel", cabinet.Width, cabinet.Depth, null, locker.PanelColor, 2, $"{prefix} Panneaux horizontaux");
+                    AddPartLine(connection, result, "Left or right panel", null, cabinet.Depth, locker.Height, locker.PanelColor, 2, $"{prefix} Panneaux latéraux");
+                    AddPartLine(connection, result, "Back panel", cabinet.Width, null, locker.Height, locker.PanelColor, 1, $"{prefix} Panneau arrière");
 
                     if (locker.HasDoor)
                     {
-                        AddPartLine(connection, result, "Door", cabinet.Width, null, locker.Height, locker.DoorColor, 1, $"Porte casier {locker.Position}");
+                        // 2. Mappage de la largeur et quantité des portes
+                        int doorWidth = 0;
+                        int doorQty = 2;
+                        switch (cabinet.Width)
+                        {
+                            case 32: doorWidth = 32; doorQty = 1; break;
+                            case 42: doorWidth = 42; doorQty = 1; break;
+                            case 52: doorWidth = 52; doorQty = 1; break;
+                            case 62: doorWidth = 32; doorQty = 2; break;
+                            case 80: doorWidth = 42; doorQty = 2; break;
+                            case 100: doorWidth = 52; doorQty = 2; break;
+                            case 120: doorWidth = 62; doorQty = 2; break;
+                        }
+
+                        AddPartLine(connection, result, "Door", doorWidth, null, locker.Height, locker.DoorColor, doorQty, $"{prefix} Porte(s)");
+
+                        bool isGlass = string.Equals(locker.DoorColor, "Glass", StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(locker.DoorColor, "Verre", StringComparison.OrdinalIgnoreCase);
+
+                        if (!isGlass)
+                        {
+                            AddPartLine(connection, result, "Cup handle", null, null, null, null, doorQty, $"{prefix} Coupelles/Poignées");
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                result.Messages.Add($"Connexion à la base de données indisponible ({ex.Message}). Le prix affiché est une estimation à 0 €.");
+                result.Messages.Add($"Erreur DB ({ex.Message}).");
             }
 
             return result;
@@ -205,9 +231,14 @@ namespace KitBox.Services
 
         private static string[] BuildKindCandidates(string logicalKind)
         {
-            if (logicalKind.Equals("Side panel", StringComparison.OrdinalIgnoreCase))
+            if (logicalKind.Equals("Left or right panel", StringComparison.OrdinalIgnoreCase))
             {
-                return new[] { "Left or right panel", "Side panel", "Side and back panel", "Lateral panel" };
+                return new[] { "Left or right panel", "Side panel", "Lateral panel" };
+            }
+
+            if (logicalKind.Equals("Left or right crossbar", StringComparison.OrdinalIgnoreCase))
+            {
+                return new[] { "Left or right crossbar", "Side crossbar" };
             }
 
             if (logicalKind.Equals("Back panel", StringComparison.OrdinalIgnoreCase))
@@ -220,29 +251,14 @@ namespace KitBox.Services
                 return new[] { "Bottom or top panel", "Bottom panel", "Top panel" };
             }
 
-            if (logicalKind.Equals("Angle iron", StringComparison.OrdinalIgnoreCase))
-            {
-                return new[] { "Angle iron" };
-            }
-
-            if (logicalKind.Equals("Door", StringComparison.OrdinalIgnoreCase))
-            {
-                return new[] { "Door" };
-            }
-
+            // Pour les autres pièces, on retourne leur nom exact
             return new[] { logicalKind };
         }
 
         private static bool TryReadPart(
-            MySqlConnection connection,
-            IEnumerable<string> kindCandidates,
-            int? width,
-            int? depth,
-            int? height,
-            string? color,
-            bool includeColor,
-            out int stock,
-            out decimal unitPrice)
+            MySqlConnection connection, IEnumerable<string> kindCandidates,
+            int? width, int? depth, int? height, string? color,
+            bool includeColor, out int stock, out decimal unitPrice)
         {
             stock = 0;
             unitPrice = 0;
@@ -251,7 +267,6 @@ namespace KitBox.Services
             {
                 using var cmd = new MySqlCommand();
                 cmd.Connection = connection;
-
                 var whereClauses = new List<string> { "LOWER(Kind) = LOWER(@kind)" };
                 cmd.Parameters.AddWithValue("@kind", kind);
 
@@ -269,7 +284,15 @@ namespace KitBox.Services
 
                 if (height.HasValue)
                 {
-                    whereClauses.Add("Height = @height");
+                    // AJOUT CRUCIAL : Si c'est une cornière, on cherche une taille Supérieure ou Égale (>=) pour pouvoir la couper
+                    if (kind.Contains("Angle iron", StringComparison.OrdinalIgnoreCase))
+                    {
+                        whereClauses.Add("Height >= @height");
+                    }
+                    else
+                    {
+                        whereClauses.Add("Height = @height");
+                    }
                     cmd.Parameters.AddWithValue("@height", height.Value);
                 }
 
@@ -279,11 +302,16 @@ namespace KitBox.Services
                     cmd.Parameters.AddWithValue("@color", color);
                 }
 
+                // On trie par Hauteur croissante pour les cornières (pour prendre la plus proche), sinon par Stock
+                string orderBy = kind.Contains("Angle iron", StringComparison.OrdinalIgnoreCase)
+                    ? "ORDER BY Height ASC, In_Stock DESC"
+                    : "ORDER BY In_Stock DESC";
+
                 cmd.CommandText = $@"
                     SELECT In_Stock AS InStock, Customer_price AS CustomerPrice
                     FROM Part
                     WHERE {string.Join(" AND ", whereClauses)}
-                    ORDER BY In_Stock DESC
+                    {orderBy}
                     LIMIT 1;";
 
                 using var reader = cmd.ExecuteReader();
@@ -294,7 +322,6 @@ namespace KitBox.Services
                     return true;
                 }
             }
-
             return false;
         }
     }
