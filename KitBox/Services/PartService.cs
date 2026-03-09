@@ -334,8 +334,9 @@ namespace KitBox.Services
 
                 cmd.CommandText = $@"
                     SELECT 
-                        p.In_Stock AS InStock, 
-                        p.Customer_price AS CustomerPrice,
+                        p.ID_PART, 
+                        p.In_Stock, 
+                        p.Customer_price,
                         IFNULL(so.Shipping_time, 0) AS ShippingTime
                     FROM Part p
                     LEFT JOIN SupplierOffer so ON p.ID_PART = so.ID_PART
@@ -346,9 +347,11 @@ namespace KitBox.Services
                 using var reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
-                    stock = reader.GetInt32("InStock");
-                    unitPrice = reader.GetDecimal("CustomerPrice");
-                    shippingDelay = reader.GetInt32("ShippingTime");
+                    // Lecture directe par le nom de la colonne
+                    partId = reader["ID_PART"].ToString() ?? string.Empty;
+                    stock = Convert.ToInt32(reader["In_Stock"]);
+                    unitPrice = Convert.ToDecimal(reader["Customer_price"]);
+                    shippingDelay = Convert.ToInt32(reader["ShippingTime"]);
                     return true;
                 }
             }

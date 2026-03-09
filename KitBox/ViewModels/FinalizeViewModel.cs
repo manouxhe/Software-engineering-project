@@ -3,6 +3,7 @@ using System.Reactive;
 using ReactiveUI;
 using KitBox.Models;
 using KitBox.Services;
+using System;
 
 namespace KitBox.ViewModels
 {
@@ -107,6 +108,16 @@ namespace KitBox.ViewModels
 
                 // On utilise l'email comme identifiant client
                 string nomClient = string.IsNullOrWhiteSpace(EmailAddress) ? "Client" : EmailAddress;
+
+                // --- AJOUT POUR LE DIAGNOSTIC ---
+                Console.WriteLine($"\n--- DEBUG SAUVEGARDE COMMANDE ---");
+                Console.WriteLine($"Nombre de pièces différentes à déduire : {checkout.UsedParts.Count}");
+                foreach (var p in checkout.UsedParts)
+                {
+                    Console.WriteLine($"ID: {p.Key} -> Quantité à déduire: {p.Value}");
+                }
+                Console.WriteLine($"---------------------------------\n");
+                // --------------------------------
 
                 // 2. On lance la TRANSACTION SQL (Sauvegarde Commande + Armoire + Casiers + MàJ Stock)
                 bool success = OrderService.FinalizeOrder(nomClient, cabinet, checkout.UsedParts);
