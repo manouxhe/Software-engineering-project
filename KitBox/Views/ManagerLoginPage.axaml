@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:KitBox.ViewModels"
+             x:Class="KitBox.Views.ManagerLoginPage"
+             x:DataType="vm:ManagerLoginViewModel">
+
+  <StackPanel Spacing="12" Margin="24" MaxWidth="420" VerticalAlignment="Center">
+    <TextBlock Text="Connexion Manager" FontSize="26" FontWeight="Bold" Foreground="Black" Margin="0,0,0,22" HorizontalAlignment="Center" />
+
+    <TextBlock Text="E-mail" Foreground="Black"/>
+    <TextBox Text="{Binding Email}" Watermark="something@domain.xxx"/>
+
+    <TextBlock Text="Mot de passe" Foreground="Black"/>
+    <TextBox Text="{Binding Password}" PasswordChar="*" Watermark="••••••••"/>
+
+    <TextBlock Text="{Binding ErrorMessage}"
+               IsVisible="{Binding HasError}"
+               Foreground = "#8b0000"
+               FontWeight ="Bold"/>
+
+    <StackPanel Orientation="Horizontal" Spacing="12">
+      <Button Content="Se connecter" Command="{Binding LoginCommand}" Background="#2196F3" />
+      <Button Content="Annuler" Command="{Binding CancelCommand}" Background="#2196F3"/>
+    </StackPanel>
+    </StackPanel>
+</UserControl>
