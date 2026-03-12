@@ -27,6 +27,16 @@
                     FontSize="18"
                     CornerRadius="8">
             </Button>
+
+            <Button Content="Espace manager"
+                    Classes= "primary"
+                    Command="{Binding ManagerCommand}"
+                    HorizontalAlignment="Center"
+                    Padding="30,15"
+                    FontSize="18"
+                    CornerRadius="8">
+            </Button>
+
         </StackPanel>
 
         <TextBlock Grid.Row="2"
