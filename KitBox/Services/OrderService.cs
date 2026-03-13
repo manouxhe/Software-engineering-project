@@ -116,5 +116,27 @@ namespace KitBox.Services
 
             return orders;
         }
+
+        public static bool UpdateOrderStatusToComplete(int orderId)
+        {
+            try
+            {
+                using var connection = new MySqlConnection(ConnectionString);
+                connection.Open();
+
+                string query = "UPDATE `Order` SET Status = 'Complète' WHERE ID_ORDER = @id;";
+
+                using var cmd = new MySqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@id", orderId);
+
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la mise à jour du statut : {ex.Message}");
+                return false;
+            }
+        }
     }
 }

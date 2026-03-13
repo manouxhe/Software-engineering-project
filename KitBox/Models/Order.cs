@@ -24,6 +24,7 @@ namespace KitBox.Models
                 return "#000000";
             }
         }
+        public bool IsPending => Status == "En attente";
 
         // Relation: Une commande contient plusieurs armoires (1..N)
         public List<Cabinet> Cabinets { get; set; } = new List<Cabinet>();
