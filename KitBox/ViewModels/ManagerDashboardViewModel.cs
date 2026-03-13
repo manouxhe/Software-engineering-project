@@ -9,9 +9,12 @@ public sealed class ManagerDashboardViewModel : ViewModelBase
 
     public ReactiveCommand<Unit, Unit> GoHomeCommand { get; }
 
+    public ManagerOrdersViewModel OrdersTab { get; }
+
     public ManagerDashboardViewModel(MainViewModel main)
     {
         _main = main;
+        OrdersTab = new ManagerOrdersViewModel();
         GoHomeCommand = ReactiveCommand.Create(() => _main.NavigateTo(new HomeViewModel(_main)));
     }
 }

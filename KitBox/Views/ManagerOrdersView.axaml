@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:KitBox.ViewModels"
+             x:Class="KitBox.Views.ManagerOrdersView"
+             x:DataType="vm:ManagerOrdersViewModel">
+    
+    <Grid Margin="0,15,0,0">
+        <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Orders}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="White" CornerRadius="8" Padding="20" Margin="0,0,0,12" BoxShadow="0 2 5 0 #20000000">
+                            <Grid ColumnDefinitions="120, *, 120, 150">
+                                
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Id, StringFormat='Cmd N°{0}'}" FontWeight="Bold" FontSize="18" Foreground="Black"/>
+                                    <TextBlock Text="{Binding Date, StringFormat='dd/MM/yyyy'}" Foreground="#888" Margin="0,4,0,0"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0">
+                                    <TextBlock Text="Email client :" Foreground="#888" FontSize="12"/>
+                                    <TextBlock Text="{Binding ClientEmail}" FontWeight="SemiBold" FontSize="16" Foreground="#333" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                    <TextBlock Text="Prix Total :" Foreground="#888" FontSize="12"/>
+                                    <TextBlock Text="{Binding TotalPrice, StringFormat='{}{0:0.00} €'}" FontWeight="Bold" Foreground="#2196F3" FontSize="18"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Statut :" Foreground="#888" FontSize="12"/>
+                                    <TextBlock Text="{Binding Status}" FontWeight="Bold" FontSize="16" Foreground="{Binding StatusColor}"/>
+                                </StackPanel>
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

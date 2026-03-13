@@ -107,7 +107,7 @@ namespace KitBox.ViewModels
                 var checkout = PartService.GetCheckoutDetails(cabinet);
 
                 // On utilise l'email comme identifiant client
-                string nomClient = string.IsNullOrWhiteSpace(EmailAddress) ? "Client" : EmailAddress;
+                string emailClient = EmailAddress;
 
                 // --- AJOUT POUR LE DIAGNOSTIC ---
                 Console.WriteLine($"\n--- DEBUG SAUVEGARDE COMMANDE ---");
@@ -120,7 +120,7 @@ namespace KitBox.ViewModels
                 // --------------------------------
 
                 // 2. On lance la TRANSACTION SQL (Sauvegarde Commande + Armoire + Casiers + MàJ Stock)
-                bool success = OrderService.FinalizeOrder(nomClient, cabinet, checkout.UsedParts);
+                bool success = OrderService.FinalizeOrder(emailClient, checkout.TotalPrice, checkout.MissingItems.Count == 0, cabinet, checkout.UsedParts);
 
                 if (!success)
                 {
