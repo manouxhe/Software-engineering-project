@@ -92,7 +92,7 @@ namespace KitBox.Services
                 FROM `Order` 
                 ORDER BY 
                 CASE WHEN Status = 'En attente' THEN 0 ELSE 1 END ASC,
-                Date ASC;";
+                ID_ORDER ASC;";
 
                 using var cmd = new MySqlCommand(query, connection);
                 using var reader = cmd.ExecuteReader();
@@ -103,7 +103,6 @@ namespace KitBox.Services
                     {
                         Id = reader.GetInt32("ID_ORDER"),
                         Date = reader.GetDateTime("Date"),
-                        // Si l'email est null dans la DB, on met une chaîne vide pour éviter les crashs
                         ClientEmail = reader.IsDBNull(reader.GetOrdinal("Client_email")) ? "Aucun email" : reader.GetString("Client_email"),
                         TotalPrice = reader.GetDecimal("Total_price"),
                         Status = reader.GetString("Status")
