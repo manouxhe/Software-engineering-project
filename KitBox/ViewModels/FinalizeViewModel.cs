@@ -77,7 +77,7 @@ namespace KitBox.ViewModels
                 {
                     InfoMessages.Add(message);
                 }
-                
+
             }
 
             HasStockIssue = StockAlerts.Count > 0 || InfoMessages.Count > 0;
@@ -101,29 +101,6 @@ namespace KitBox.ViewModels
             {
                 var checkout = PartService.GetCheckoutDetails(cabinet);
 
-<<<<<<< Updated upstream
-                // On ut l'email comme identifiant client
-                string emailClient = EmailAddress;
-
-                Console.WriteLine($"\n--- DEBUG SAUVEGARDE COMMANDE ---");
-                Console.WriteLine($"Nombre de pièces différentes à déduire : {checkout.UsedParts.Count}");
-                foreach (var p in checkout.UsedParts)
-                {
-                    Console.WriteLine($"ID: {p.Key} -> Quantité à déduire: {p.Value}");
-                }
-                Console.WriteLine($"---------------------------------\n");
-                // --------------------------------
-
-                bool success = OrderService.FinalizeOrder(emailClient, checkout.TotalPrice, checkout.MissingItems.Count == 0, cabinet, checkout.UsedParts);
-
-                if (!success)
-                {
-                    allSuccess = false;
-                }
-            }
-
-            if (allSuccess)
-=======
                 // On fusionne les pièces de cette armoire dans le dictionnaire global
                 foreach (var part in checkout.UsedParts)
                 {
@@ -145,17 +122,12 @@ namespace KitBox.ViewModels
 
             // 3. Gestion de l'affichage
             if (success)
->>>>>>> Stashed changes
             {
                 Items.Clear(); // On vide le panier
 
                 if (HasStockIssue)
                 {
-<<<<<<< Updated upstream
-                    PaymentMessage = $"Commande enregistrée, Un e-mail sera envoyé à {EmailAddress} dès l'arrivée des pièces.";
-=======
                     PaymentMessage = $"Commande enregistrée ! Un e-mail sera envoyé à {nomClient} dès l'arrivée des pièces en rupture.";
->>>>>>> Stashed changes
                 }
                 else
                 {
