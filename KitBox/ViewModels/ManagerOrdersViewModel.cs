@@ -30,7 +30,7 @@ namespace KitBox.ViewModels
         }
         private void OnMarkAsComplete(Order order)
         {
-            if (order != null && order.Status == "En attente")
+            if (order != null && order.Status == "In progress")
             {
                 bool success = OrderService.UpdateOrderStatusToComplete(order.Id);
 

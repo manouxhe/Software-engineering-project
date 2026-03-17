@@ -84,11 +84,11 @@ namespace KitBox.ViewModels
 
             if (HasStockIssue)
             {
-                PaymentMessage = "Stock limité sur certains articles : laissez votre e-mail pour recevoir une notification de retour en stock.";
+                PaymentMessage = "Limited stock on some items: leave your email to receive a notification when they are back in stock.";
             }
             else
             {
-                PaymentMessage = "Tous les articles sont en stock. Vous pouvez payer maintenant.";
+                PaymentMessage = "All items are in stock. You can proceed with payment now.";
             }
         }
 
@@ -127,16 +127,16 @@ namespace KitBox.ViewModels
 
                 if (HasStockIssue)
                 {
-                    PaymentMessage = $"Commande enregistrée ! Un e-mail sera envoyé à {nomClient} dès l'arrivée des pièces en rupture.";
+                    PaymentMessage = $"Order saved! An email will be sent to {nomClient} as soon as the out-of-stock items arrive.";
                 }
                 else
                 {
-                    PaymentMessage = "Paiement validé ! Votre commande unique a bien été enregistrée et le stock est mis à jour.";
+                    PaymentMessage = "Payment confirmed! Your order has been successfully recorded and the stock has been updated.";
                 }
             }
             else
             {
-                PaymentMessage = "Erreur de connexion. La commande a été annulée.";
+                PaymentMessage = "Connection error. The order has been cancelled.";
             }
         }
 

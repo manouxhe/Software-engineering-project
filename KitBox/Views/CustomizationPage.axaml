@@ -12,21 +12,21 @@
             <Grid Grid.Column="0" RowDefinitions="Auto, *, Auto" Margin="20">
 
                 <StackPanel Grid.Row="0" Spacing="5" Margin="0,0,0,20">
-                    <TextBlock Text="Personnalisation" FontSize="28" FontWeight="Bold" Foreground="Black"/>
-                    <TextBlock Text="{Binding CurrentCabinet.Width, StringFormat='Dimensions globales : {0}cm (L)'}" Foreground="Gray"/>
-                    <TextBlock Text="{Binding CurrentCabinet.Depth, StringFormat='Profondeur : {0}cm'}" Foreground="Gray"/>
+                    <TextBlock Text="Customisation" FontSize="28" FontWeight="Bold" Foreground="Black"/>
+                    <TextBlock Text="{Binding CurrentCabinet.Width, StringFormat='Width : {0}cm'}" Foreground="Gray"/>
+                    <TextBlock Text="{Binding CurrentCabinet.Depth, StringFormat='Depth : {0}cm'}" Foreground="Gray"/>
 
-                    <TextBlock Text="{Binding Lockers.Count, StringFormat='Casiers : {0} / 7 (Maximum)'}"
+                    <TextBlock Text="{Binding Lockers.Count, StringFormat='Lockers : {0} / 7 (Max Number)'}"
                                FontWeight="SemiBold"
                                Foreground="#2196F3"
                                Margin="0,5,0,0"/>
 
                     <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
-                        <TextBlock Text="Couleur des cornières :" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="Black"/>
+                        <TextBlock Text="Angle Iron colors :" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="Black"/>
                         <ComboBox ItemsSource="{Binding AvailableAngleIronColors}"
                                   SelectedItem="{Binding SelectedAngleIronColor}"
                                   Width="180"
-                                  PlaceholderText="Choisir..."/>
+                                  PlaceholderText="Choose..."/>
                     </StackPanel>
                 </StackPanel>
 
@@ -73,7 +73,7 @@
                 </ScrollViewer>
 
                 <StackPanel Grid.Row="2" Spacing="10" Margin="0,10,0,0">
-                    <Button Content="+ Ajouter un casier"
+                    <Button Content="+ Add a locker"
                             Command="{Binding OpenPopupCommand}"
                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                             Classes="primary" Padding="15"/>
@@ -81,14 +81,14 @@
                     <Grid ColumnDefinitions="*, *">
 
                         <Button Grid.Column="0"
-                                Content="Retour aux dimensions"
+                                Content="Return to dimensions"
                                 Command="{Binding GoBackCommand}"
                                 Classes="secondary"
                                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                                 Padding="10" Margin="0,0,5,0"/>
 
                         <Button Grid.Column="1"
-                                Content="Suivant (Récapitulatif)"
+                                Content="Next (Recap)"
                                 Command="{Binding NextCommand}"
                                 Classes="primary"
                                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
@@ -125,17 +125,17 @@
                     <TextBlock Text="{Binding PopupTitle}" FontSize="22" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center"/>
 
                     <StackPanel>
-                        <TextBlock Text="Hauteur (cm)" FontWeight="SemiBold" Foreground="Black"/>
-                        <ComboBox ItemsSource="{Binding AvailableHeights}" SelectedItem="{Binding SelectedHeight}" HorizontalAlignment="Stretch" PlaceholderText="Choisir..."/>
+                        <TextBlock Text="Height (cm)" FontWeight="SemiBold" Foreground="Black"/>
+                        <ComboBox ItemsSource="{Binding AvailableHeights}" SelectedItem="{Binding SelectedHeight}" HorizontalAlignment="Stretch" PlaceholderText="Choose..."/>
                     </StackPanel>
 
                     <StackPanel>
-                        <TextBlock Text="Couleur des panneaux" FontWeight="SemiBold" Foreground="Black"/>
-                        <ComboBox ItemsSource="{Binding AvailablePanelColors}" SelectedItem="{Binding SelectedPanelColor}" HorizontalAlignment="Stretch" PlaceholderText="Choisir..."/>
+                        <TextBlock Text="Panel color" FontWeight="SemiBold" Foreground="Black"/>
+                        <ComboBox ItemsSource="{Binding AvailablePanelColors}" SelectedItem="{Binding SelectedPanelColor}" HorizontalAlignment="Stretch" PlaceholderText="Choose..."/>
                     </StackPanel>
 
                     <StackPanel>
-                        <CheckBox Content="Ajouter des portes"
+                        <CheckBox Content="Add a door"
                                   IsChecked="{Binding HasDoor}"
                                   Foreground="Black">
                             <CheckBox.Resources>
@@ -148,13 +148,13 @@
                     </StackPanel>
 
                     <StackPanel IsVisible="{Binding HasDoor}">
-                        <TextBlock Text="Couleur de la porte" FontWeight="SemiBold" Foreground="Black"/>
-                        <ComboBox ItemsSource="{Binding AvailableDoorColors}" SelectedItem="{Binding SelectedDoorColor}" HorizontalAlignment="Stretch" PlaceholderText="Choisir..."/>
+                        <TextBlock Text="Door color" FontWeight="SemiBold" Foreground="Black"/>
+                        <ComboBox ItemsSource="{Binding AvailableDoorColors}" SelectedItem="{Binding SelectedDoorColor}" HorizontalAlignment="Stretch" PlaceholderText="Choose..."/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
-                        <Button Content="Annuler" Command="{Binding CancelPopupCommand}" Classes="secondary"/>
-                        <Button Content="Valider" Command="{Binding ValidateLockerCommand}" Background="#4CAF50" Foreground="White" FontWeight="Bold"/>
+                        <Button Content="Cancel" Command="{Binding CancelPopupCommand}" Classes="secondary"/>
+                        <Button Content="Confirm" Command="{Binding ValidateLockerCommand}" Background="#4CAF50" Foreground="White" FontWeight="Bold"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
