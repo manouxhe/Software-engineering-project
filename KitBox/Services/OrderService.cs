@@ -9,8 +9,7 @@ namespace KitBox.Services
     {
         private const string ConnectionString = "Server=pat.infolab.ecam.be;Port=63301;Database=kitbox;Uid=kitbox;Pwd=password;";
 
-        // ATTENTION : J'ai modifié les paramètres ici !
-        public static bool FinalizeOrder(string clientEmail, decimal totalPrice, bool isComplete, Cabinet cabinet, Dictionary<string, int> usedParts)
+        public static bool FinalizeOrder(string clientEmail, decimal totalPrice, bool isComplete, IEnumerable<Cabinet> cabinets, Dictionary<string, int> totalUsedParts)
         {
             using var connection = new MySqlConnection(ConnectionString);
             connection.Open();
@@ -20,44 +19,47 @@ namespace KitBox.Services
 
             try
             {
-                // 1. Créer la Commande Client (Nouvelle structure sans Client_name)
+                // 1. Créer la Commande Client (UNE SEULE FOIS)
                 string orderQuery = "INSERT INTO `Order` (`Date`, Client_email, Total_price, Status) VALUES (@date, @email, @price, @status); SELECT LAST_INSERT_ID();";
 
                 using var cmdOrder = new MySqlCommand(orderQuery, connection, transaction);
                 cmdOrder.Parameters.AddWithValue("@date", DateTime.Now.ToString("yyyy-MM-dd"));
-
                 cmdOrder.Parameters.AddWithValue("@email", string.IsNullOrWhiteSpace(clientEmail) ? DBNull.Value : (object)clientEmail);
                 cmdOrder.Parameters.AddWithValue("@price", totalPrice);
                 cmdOrder.Parameters.AddWithValue("@status", isComplete ? "Complète" : "En attente");
 
                 int orderId = Convert.ToInt32(cmdOrder.ExecuteScalar());
 
-                // 2. Créer l'Armoire liée à la commande (Aucun changement ici)
-                string cabinetQuery = "INSERT INTO Cabinet (ID_ORDER, Width, Depth, Angle_Iron_color) VALUES (@idCmd, @w, @d, @color); SELECT LAST_INSERT_ID();";
-                using var cmdCabinet = new MySqlCommand(cabinetQuery, connection, transaction);
-                cmdCabinet.Parameters.AddWithValue("@idCmd", orderId);
-                cmdCabinet.Parameters.AddWithValue("@w", cabinet.Width);
-                cmdCabinet.Parameters.AddWithValue("@d", cabinet.Depth);
-                cmdCabinet.Parameters.AddWithValue("@color", cabinet.AngleIronColor);
-
-                int cabinetId = Convert.ToInt32(cmdCabinet.ExecuteScalar());
-
-                // 3. Créer les Casiers liés à l'armoire (Aucun changement ici)
-                string lockerQuery = "INSERT INTO Locker (ID_CABINET, Position, Height, Panel_color, Has_door) VALUES (@idArm, @pos, @h, @color, @door);";
-                foreach (var locker in cabinet.Lockers)
+                // 2. BOUCLER SUR TOUTES LES ARMOIRES
+                foreach (var cabinet in cabinets)
                 {
-                    using var cmdLocker = new MySqlCommand(lockerQuery, connection, transaction);
-                    cmdLocker.Parameters.AddWithValue("@idArm", cabinetId);
-                    cmdLocker.Parameters.AddWithValue("@pos", locker.Position);
-                    cmdLocker.Parameters.AddWithValue("@h", locker.Height);
-                    cmdLocker.Parameters.AddWithValue("@color", locker.PanelColor);
-                    cmdLocker.Parameters.AddWithValue("@door", locker.HasDoor); // Booléen converti automatiquement
-                    cmdLocker.ExecuteNonQuery();
+                    // Créer l'Armoire liée à la commande
+                    string cabinetQuery = "INSERT INTO Cabinet (ID_ORDER, Width, Depth, Angle_Iron_color) VALUES (@idCmd, @w, @d, @color); SELECT LAST_INSERT_ID();";
+                    using var cmdCabinet = new MySqlCommand(cabinetQuery, connection, transaction);
+                    cmdCabinet.Parameters.AddWithValue("@idCmd", orderId);
+                    cmdCabinet.Parameters.AddWithValue("@w", cabinet.Width);
+                    cmdCabinet.Parameters.AddWithValue("@d", cabinet.Depth);
+                    cmdCabinet.Parameters.AddWithValue("@color", cabinet.AngleIronColor);
+
+                    int cabinetId = Convert.ToInt32(cmdCabinet.ExecuteScalar());
+
+                    // 3. Créer les Casiers liés à cette armoire
+                    string lockerQuery = "INSERT INTO Locker (ID_CABINET, Position, Height, Panel_color, Has_door) VALUES (@idArm, @pos, @h, @color, @door);";
+                    foreach (var locker in cabinet.Lockers)
+                    {
+                        using var cmdLocker = new MySqlCommand(lockerQuery, connection, transaction);
+                        cmdLocker.Parameters.AddWithValue("@idArm", cabinetId);
+                        cmdLocker.Parameters.AddWithValue("@pos", locker.Position);
+                        cmdLocker.Parameters.AddWithValue("@h", locker.Height);
+                        cmdLocker.Parameters.AddWithValue("@color", locker.PanelColor);
+                        cmdLocker.Parameters.AddWithValue("@door", locker.HasDoor);
+                        cmdLocker.ExecuteNonQuery();
+                    }
                 }
 
-                // 4. Déduire les pièces du stock (Table Part) (Aucun changement ici)
+                // 4. Déduire les pièces du stock
                 string stockQuery = "UPDATE Part SET In_Stock = In_Stock - @qty WHERE ID_PART = @idPart;";
-                foreach (var part in usedParts)
+                foreach (var part in totalUsedParts)
                 {
                     using var cmdStock = new MySqlCommand(stockQuery, connection, transaction);
                     cmdStock.Parameters.AddWithValue("@qty", part.Value);
@@ -72,11 +74,14 @@ namespace KitBox.Services
             catch (Exception ex)
             {
                 // ERREUR : On annule absolument tout !
-                Console.WriteLine("Erreur lors de la transaction : " + ex.Message);
+                Console.WriteLine("\n\n=== ERREUR CRITIQUE SQL ===");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("===========================\n\n");
                 transaction.Rollback();
                 return false;
             }
         }
+
 
         public static List<Order> GetAllOrders()
         {

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Reactive;
 using ReactiveUI;
 using KitBox.Models;
@@ -93,12 +94,14 @@ namespace KitBox.ViewModels
 
         private void OnPay()
         {
-            bool allSuccess = true;
+            // 1. Préparer un "méga dictionnaire" qui va contenir les pièces de TOUTES les armoires cumulées
+            var totalUsedParts = new Dictionary<string, int>();
 
             foreach (var cabinet in Items)
             {
                 var checkout = PartService.GetCheckoutDetails(cabinet);
 
+<<<<<<< Updated upstream
                 // On ut l'email comme identifiant client
                 string emailClient = EmailAddress;
 
@@ -120,16 +123,43 @@ namespace KitBox.ViewModels
             }
 
             if (allSuccess)
+=======
+                // On fusionne les pièces de cette armoire dans le dictionnaire global
+                foreach (var part in checkout.UsedParts)
+                {
+                    if (!totalUsedParts.ContainsKey(part.Key))
+                    {
+                        totalUsedParts[part.Key] = 0;
+                    }
+                    totalUsedParts[part.Key] += part.Value;
+                }
+            }
+
+            string nomClient = string.IsNullOrWhiteSpace(EmailAddress) ? "Client" : EmailAddress;
+
+            // 2. On lance la TRANSACTION SQL UNE SEULE FOIS en envoyant la liste complète des armoires (Items)
+            bool isComplete = !HasStockIssue; // Si y'a pas de problème de stock, la commande est Complète
+
+            // On lance la TRANSACTION SQL UNE SEULE FOIS avec la liste complète des armoires (Items)
+            bool success = OrderService.FinalizeOrder(nomClient, TotalPrice, isComplete, Items, totalUsedParts);
+
+            // 3. Gestion de l'affichage
+            if (success)
+>>>>>>> Stashed changes
             {
-                Items.Clear(); // On vide le panier car tout a été enregistré
+                Items.Clear(); // On vide le panier
 
                 if (HasStockIssue)
                 {
+<<<<<<< Updated upstream
                     PaymentMessage = $"Commande enregistrée, Un e-mail sera envoyé à {EmailAddress} dès l'arrivée des pièces.";
+=======
+                    PaymentMessage = $"Commande enregistrée ! Un e-mail sera envoyé à {nomClient} dès l'arrivée des pièces en rupture.";
+>>>>>>> Stashed changes
                 }
                 else
                 {
-                    PaymentMessage = "Paiement validé ! Votre commande est enregistrée et le stock a été mis à jour.";
+                    PaymentMessage = "Paiement validé ! Votre commande unique a bien été enregistrée et le stock est mis à jour.";
                 }
             }
             else
