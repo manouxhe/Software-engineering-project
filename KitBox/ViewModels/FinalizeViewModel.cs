@@ -76,11 +76,7 @@ namespace KitBox.ViewModels
                 {
                     InfoMessages.Add(message);
                 }
-
-                foreach (var missing in checkout.MissingItems)
-                {
-                    StockAlerts.Add($"{missing.Label} : {missing.AvailableQuantity}/{missing.RequiredQuantity} en stock.");
-                }
+                
             }
 
             HasStockIssue = StockAlerts.Count > 0 || InfoMessages.Count > 0;
