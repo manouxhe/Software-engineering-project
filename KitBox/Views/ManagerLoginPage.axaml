@@ -19,8 +19,8 @@
                FontWeight ="Bold"/>
 
     <StackPanel Orientation="Horizontal" Spacing="12">
-      <Button Content="Se connecter" Command="{Binding LoginCommand}" Background="#2196F3" />
-      <Button Content="Annuler" Command="{Binding CancelCommand}" Background="#2196F3"/>
+      <Button Content="Se connecter" Command="{Binding LoginCommand}" Classes="primary" />
+      <Button Content="Annuler" Command="{Binding CancelCommand}" Classes="secondary"/>
     </StackPanel>
-    </StackPanel>
+  </StackPanel>
 </UserControl>
