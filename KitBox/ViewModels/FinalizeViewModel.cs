@@ -21,7 +21,6 @@ namespace KitBox.ViewModels
             set => this.RaiseAndSetIfChanged(ref _hasStockIssue, value);
         }
 
-        // On utilisera ce champ comme "Nom de client" pour la base de données
         private string _emailAddress = string.Empty;
         public string EmailAddress
         {
@@ -100,16 +99,13 @@ namespace KitBox.ViewModels
         {
             bool allSuccess = true;
 
-            // 1. On parcourt toutes les armoires du panier
             foreach (var cabinet in Items)
             {
-                // On recalcule pour récupérer les pièces exactes (UsedParts) à déduire du stock
                 var checkout = PartService.GetCheckoutDetails(cabinet);
 
-                // On utilise l'email comme identifiant client
+                // On ut l'email comme identifiant client
                 string emailClient = EmailAddress;
 
-                // --- AJOUT POUR LE DIAGNOSTIC ---
                 Console.WriteLine($"\n--- DEBUG SAUVEGARDE COMMANDE ---");
                 Console.WriteLine($"Nombre de pièces différentes à déduire : {checkout.UsedParts.Count}");
                 foreach (var p in checkout.UsedParts)
@@ -119,7 +115,6 @@ namespace KitBox.ViewModels
                 Console.WriteLine($"---------------------------------\n");
                 // --------------------------------
 
-                // 2. On lance la TRANSACTION SQL (Sauvegarde Commande + Armoire + Casiers + MàJ Stock)
                 bool success = OrderService.FinalizeOrder(emailClient, checkout.TotalPrice, checkout.MissingItems.Count == 0, cabinet, checkout.UsedParts);
 
                 if (!success)
@@ -128,14 +123,13 @@ namespace KitBox.ViewModels
                 }
             }
 
-            // 3. Gestion de l'affichage après la tentative de sauvegarde
             if (allSuccess)
             {
                 Items.Clear(); // On vide le panier car tout a été enregistré
 
                 if (HasStockIssue)
                 {
-                    PaymentMessage = $"Commande enregistrée en base de données ! Un e-mail sera envoyé à {EmailAddress} dès l'arrivée des pièces.";
+                    PaymentMessage = $"Commande enregistrée, Un e-mail sera envoyé à {EmailAddress} dès l'arrivée des pièces.";
                 }
                 else
                 {
@@ -144,7 +138,7 @@ namespace KitBox.ViewModels
             }
             else
             {
-                PaymentMessage = "Erreur de connexion à la base de données. La commande a été annulée.";
+                PaymentMessage = "Erreur de connexion. La commande a été annulée.";
             }
         }
 
