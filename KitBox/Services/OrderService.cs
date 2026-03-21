@@ -143,5 +143,57 @@ namespace KitBox.Services
                 return false;
             }
         }
+        public static Cabinet? GetCabinetByOrderId(int orderId)
+        {
+            try
+            {
+                using var connection = new MySqlConnection(ConnectionString);
+                connection.Open();
+
+
+                string queryCabinet = "SELECT ID_CABINET, Width, Depth, Angle_Iron_color FROM Cabinet WHERE ID_ORDER = @id LIMIT 1;";
+                using var cmdCabinet = new MySqlCommand(queryCabinet, connection);
+                cmdCabinet.Parameters.AddWithValue("@id", orderId);
+
+                using var readerCabinet = cmdCabinet.ExecuteReader();
+
+                if (!readerCabinet.Read()) return null;
+
+                int cabinetId = readerCabinet.GetInt32("ID_CABINET");
+
+                var cabinet = new Cabinet
+                {
+                    Width = readerCabinet.GetInt32("Width"),
+                    Depth = readerCabinet.GetInt32("Depth"),
+                    AngleIronColor = readerCabinet.GetString("Angle_Iron_color")
+                };
+
+                readerCabinet.Close();
+
+                string queryLocker = "SELECT Position, Height, Panel_color, Has_door FROM Locker WHERE ID_CABINET = @cabId ORDER BY Position ASC;";
+                using var cmdLocker = new MySqlCommand(queryLocker, connection);
+                cmdLocker.Parameters.AddWithValue("@cabId", cabinetId);
+
+                using var readerLocker = cmdLocker.ExecuteReader();
+
+                while (readerLocker.Read())
+                {
+                    cabinet.Lockers.Add(new Locker
+                    {
+                        Position = readerLocker.GetInt32("Position"),
+                        Height = readerLocker.GetInt32("Height"),
+                        PanelColor = readerLocker.GetString("Panel_color"),
+                        HasDoor = readerLocker.GetBoolean("Has_door")
+                    });
+                }
+
+                return cabinet;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la récupération de l'armoire : {ex.Message}");
+                return null;
+            }
+        }
     }
 }

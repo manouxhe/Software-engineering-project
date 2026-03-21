@@ -3,48 +3,91 @@
              xmlns:vm="clr-namespace:KitBox.ViewModels"
              x:Class="KitBox.Views.ManagerOrdersView"
              x:DataType="vm:ManagerOrdersViewModel">
-
+    
     <Grid Margin="0,15,0,0">
+        
         <ScrollViewer>
             <ItemsControl ItemsSource="{Binding Orders}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
+                        
                         <Border Background="White" CornerRadius="8" Padding="20" Margin="0,0,0,12" BoxShadow="0 2 5 0 #20000000">
-                            <Grid ColumnDefinitions="120, *, 120, 150">
-
+                            <Grid ColumnDefinitions="120, *, 120, 200">
+                                
                                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Id, StringFormat='Cmd N°{0}'}" FontWeight="Bold" FontSize="18" Foreground="Black"/>
                                     <TextBlock Text="{Binding Date, StringFormat='dd/MM/yyyy'}" Foreground="#888" Margin="0,4,0,0"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0">
-                                    <TextBlock Text="Client mail :" Foreground="#888" FontSize="12"/>
+                                    <TextBlock Text="Email client :" Foreground="#888" FontSize="12"/>
                                     <TextBlock Text="{Binding ClientEmail}" FontWeight="SemiBold" FontSize="16" Foreground="#333" TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                    <TextBlock Text="Total price :" Foreground="#888" FontSize="12"/>
+                                    <TextBlock Text="Prix Total :" Foreground="#888" FontSize="12"/>
                                     <TextBlock Text="{Binding TotalPrice, StringFormat='{}{0:0.00} €'}" FontWeight="Bold" Foreground="#2196F3" FontSize="18"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Status :" Foreground="#888" FontSize="12"/>
+                                    <TextBlock Text="Statut :" Foreground="#888" FontSize="12"/>
                                     <TextBlock Text="{Binding Status}" FontWeight="Bold" FontSize="16" Foreground="{Binding StatusColor}"/>
+                                    
+                                    <WrapPanel Margin="0,8,0,0">
+                                        <Button Content="🔍 Détails" 
+                                                Command="{Binding $parent[UserControl].DataContext.OpenDetailsCommand}"
+                                                CommandParameter="{Binding}"
+                                                x:CompileBindings="False"
+                                                Background="#E0E0E0" Foreground="#333" FontWeight="SemiBold" 
+                                                FontSize="12" Padding="8,5" CornerRadius="5" Margin="0,0,8,5"/>
 
-                                    <Button Content="✓ Validate reception"
-                                            IsVisible="{Binding IsPending}"
-                                            Command="{Binding $parent[UserControl].DataContext.MarkAsCompleteCommand}"
-                                            CommandParameter="{Binding}"
-                                            x:CompileBindings="False"
-                                            Background="#4CAF50" Foreground="White" FontWeight="Bold"
-                                            FontSize="12" Padding="10,5" CornerRadius="5" Margin="0,8,0,0"/>
+                                        <Button Content="✓ Valider" 
+                                                IsVisible="{Binding IsPending}"
+                                                Command="{Binding $parent[UserControl].DataContext.MarkAsCompleteCommand}"
+                                                CommandParameter="{Binding}"
+                                                x:CompileBindings="False"
+                                                Background="#4CAF50" Foreground="White" FontWeight="Bold" 
+                                                FontSize="12" Padding="8,5" CornerRadius="5" Margin="0,0,0,5"/>
+                                    </WrapPanel>
                                 </StackPanel>
-
                             </Grid>
                         </Border>
+                        
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
+
+        <Grid Background="#80000000" IsVisible="{Binding IsPopupVisible}" ZIndex="100">
+            <Border Background="White" CornerRadius="12" Width="500" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24" BoxShadow="0 10 30 0 #40000000">
+                <Grid RowDefinitions="Auto, *, Auto">
+                    
+                    <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,16">
+                        <TextBlock Text="{Binding SelectedOrder.Id, StringFormat='Détails de la commande N°{0}'}" FontWeight="Bold" FontSize="20" VerticalAlignment="Center" Foreground="#333"/>
+                        <Button Grid.Column="1" Content="✕" Command="{Binding CloseDetailsCommand}" 
+                                Background="Transparent" Foreground="#888" FontSize="18" FontWeight="Bold" Padding="8,4"/>
+                    </Grid>
+
+                    <StackPanel Grid.Row="1" Margin="0,0,0,24">
+                        <TextBlock Text="Pièces requises pour fabriquer cette commande :" FontWeight="SemiBold" Margin="0,0,0,8" Foreground="#555"/>
+                        <Border Background="#F5F5F5" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Padding="15" MaxHeight="250">
+                            <ScrollViewer>
+                                <ItemsControl ItemsSource="{Binding OrderDetailsList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" Foreground="#333" FontSize="14" Margin="0,4"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Border>
+                    </StackPanel>
+
+                    <Button Grid.Row="2" Content="OK" Command="{Binding CloseDetailsCommand}" 
+                            Background="#2196F3" Foreground="White" FontWeight="Bold" Padding="24,8" CornerRadius="6" HorizontalAlignment="Right"/>
+                </Grid>
+            </Border>
+        </Grid>
+
     </Grid>
 </UserControl>
