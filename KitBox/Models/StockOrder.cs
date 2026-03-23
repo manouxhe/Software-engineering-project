@@ -4,22 +4,21 @@ namespace KitBox.Models
 {
     public class StockOrder
     {
-        // PK: id_commande_stock
+        // PK: L'identifiant de la commande
         public int Id { get; set; }
 
-        // FK: code_piece
-        public string PartCode { get; set; } = string.Empty;
-
-        // FK: id_fournisseur
-        public int SupplierId { get; set; }
-
-        // quantite
+        public DateTime Date { get; set; }
+        public decimal Price { get; set; }
         public int Quantity { get; set; }
+        public string PartCode { get; set; } = string.Empty;
+        public int SupplierId { get; set; }
+        public string SupplierName { get; set; } = string.Empty;
 
-        // budget
-        public decimal Budget { get; set; } // J'utilise decimal pour la cohérence prix
+        // NOUVEAU : Statut de livraison
+        public string Status { get; set; } = string.Empty;
 
-        // date_commande
-        public DateTime Date { get; set; } = DateTime.Now;
+        // Propriétés pratiques pour l'affichage (Change la couleur du texte selon le statut)
+        public bool IsInProgress => Status == "In progress";
+        public string StatusColor => IsInProgress ? "#FFA000" : "#4CAF50";
     }
 }

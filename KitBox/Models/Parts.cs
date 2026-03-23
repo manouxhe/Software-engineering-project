@@ -5,17 +5,27 @@ namespace KitBox.Models
         // PK: code_piece (ex: "COR36BL")
         public string Code { get; set; } = string.Empty;
 
+        // Le type de la pièce (ex: "Angle iron", "Panel", etc.)
+        public string Kind { get; set; } = string.Empty;
+
+        // Dimensions utiles pour l'affichage
+        public required string Dimensions { get; set; }
+
         // en_stock
         public int Stock { get; set; }
 
         // stock_minimal
         public int MinStock { get; set; }
 
-        // prix_client (float dans le diagramme, decimal est mieux pour l'argent en C#)
+        // prix_client
         public decimal ClientPrice { get; set; }
 
-        // Dimensions utiles pour le calcul (optionnel mais recommandé vu ton diagramme logique)
-        // Tu pourras extraire ces infos depuis le code de la pièce
-        public required string Dimensions { get; set; }
+        // --- NOUVELLES PROPRIÉTÉS POUR LE DASHBOARD MANAGER ---
+
+        // Propriété calculée pour savoir si on est en rupture de stock
+        public bool IsLowStock => Stock < MinStock;
+
+        // Couleur automatique : Rouge si le stock est trop bas, Vert sinon
+        public string StockColor => IsLowStock ? "#FF5252" : "#4CAF50";
     }
 }

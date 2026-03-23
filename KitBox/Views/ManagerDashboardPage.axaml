@@ -15,10 +15,7 @@
         <TabControl Grid.Row="1">
 
             <TabItem Header="Stock &amp; Restocking">
-                <Border Background="#F9F9F9" CornerRadius="8" Padding="20" Margin="0,10,0,0">
-                    <TextBlock Text="Ici ce sera l'espace pour voir toute la liste des composants et pouvoir commander (StockOrder)."
-                               FontSize="18" Foreground="#555" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                </Border>
+                <v:ManagerStockView DataContext="{Binding StockTab}" />
             </TabItem>
 
             <TabItem Header="Customer Orders">
@@ -26,10 +23,7 @@
             </TabItem>
 
             <TabItem Header="Manager Orders">
-                <Border Background="#F9F9F9" CornerRadius="8" Padding="20" Margin="0,10,0,0">
-                    <TextBlock Text="Ici ce sera l'espace pour voir les commandes de réapprovisionnement effectuées par le manager."
-                               FontSize="18" Foreground="#555" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                </Border>
+                <v:ManagerStockOrdersView DataContext="{Binding StockOrdersTab}" />
             </TabItem>
 
             <TabItem Header="Suppliers Info">
