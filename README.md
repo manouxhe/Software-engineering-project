@@ -23,11 +23,11 @@ KitBox is a comprehensive desktop application built with **C#** and **Avalonia U
 
 ## 🛠️ Tech Stack
 
-- **Language**: C# (.NET)
-- **User Interface**: Avalonia UI (Cross-platform XAML framework) & ReactiveUI
+- **Framework**: .NET 9.0
+- **UI Framework**: Avalonia UI 11.3.9
+- **MVVM Patterns**: ReactiveUI & CommunityToolkit.Mvvm 8.4.0
 - **Database**: MariaDB / MySQL
-- **Data Access**: ADO.NET (`MySqlConnector`)
-- **Architecture**: MVVM (Model - View - ViewModel)
+- **Database Driver**: MySqlConnector 2.5.0
 
 ## 📂 Project Structure
 
@@ -40,9 +40,8 @@ KitBox is a comprehensive desktop application built with **C#** and **Avalonia U
 
 ### Prerequisites
 
-1. Install [.NET SDK](https://dotnet.microsoft.com/download) (Version 9.0 recommended).
-2. A running instance of **MySQL** or **MariaDB**.
-3. An IDE like Visual Studio, JetBrains Rider, or VS Code with C# Dev Kit.
+1. Install [.NET SDK](https://dotnet.microsoft.com/download) (Version 9.0).
+2. An IDE like Visual Studio, JetBrains Rider, or VS Code with C# Dev Kit.
 
 ### Installation & Setup
 
