@@ -40,7 +40,7 @@ KitBox is a comprehensive desktop application built with **C#** and **Avalonia U
 
 ### Prerequisites
 
-1. Install [.NET SDK](https://dotnet.microsoft.com/download) (Version 7.0 or 8.0 recommended).
+1. Install [.NET SDK](https://dotnet.microsoft.com/download) (Version 9.0 recommended).
 2. A running instance of **MySQL** or **MariaDB**.
 3. An IDE like Visual Studio, JetBrains Rider, or VS Code with C# Dev Kit.
 
@@ -49,7 +49,7 @@ KitBox is a comprehensive desktop application built with **C#** and **Avalonia U
 1. **Clone the repository**
 
    ```bash
-   git clone [https://github.com/manouxhe/Software-engineering-project.git](https://github.com/manouxhe/Software-engineering-project.git)
+   git clone https://github.com/manouxhe/Software-engineering-project.git
    cd Software-engineering-project/KitBox
    ```
 
