@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace KitBox.Models
 {
     public class Locker : ObservableObject
@@ -27,6 +29,7 @@ namespace KitBox.Models
             set => SetProperty(ref _panelColor, value);
         }
 
+        // On garde les propriétés UI existantes pour ne PAS casser Avalonia !
         private bool _hasDoor;
         public bool HasDoor
         {
@@ -39,6 +42,26 @@ namespace KitBox.Models
         {
             get => _doorColor;
             set => SetProperty(ref _doorColor, value);
+        }
+
+        // --- NOUVELLE ARCHITECTURE (Open/Closed Principle) ---
+
+        // La liste qui contiendra les éléments (Portes, Tiroirs, etc.)
+        public List<ILockerElement> Elements { get; set; } = new List<ILockerElement>();
+
+        // Cette méthode transforme les choix de l'UI en "vrais" éléments d'architecture
+        public void GenerateElements()
+        {
+            Elements.Clear(); // On repart à zéro
+
+            // Si le client a coché la porte dans l'UI, on crée l'objet DoorElement
+            if (HasDoor && !string.IsNullOrWhiteSpace(DoorColor))
+            {
+                Elements.Add(new DoorElement(DoorColor));
+            }
+
+            // Le jour où tu ajoutes un tiroir, tu auras juste à ajouter :
+            // if (HasDrawer) Elements.Add(new DrawerElement(DrawerColor));
         }
     }
 }

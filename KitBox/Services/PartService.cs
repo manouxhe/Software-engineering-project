@@ -158,30 +158,16 @@ namespace KitBox.Services
                     AddPartLine(connection, result, "Left or right panel", null, cabinet.Depth, locker.Height, locker.PanelColor, 2, $"{prefix} Panneaux latéraux");
                     AddPartLine(connection, result, "Back panel", cabinet.Width, null, locker.Height, locker.PanelColor, 1, $"{prefix} Panneau arrière");
 
-                    if (locker.HasDoor)
+                    // 2. LA BOUCLE POLYMORPHE (Le Principe Open/Closed)
+                    foreach (var element in locker.Elements)
                     {
-                        // 2. Mappage de la largeur et quantité des portes
-                        int doorWidth = 0;
-                        int doorQty = 2;
-                        switch (cabinet.Width)
+                        // On demande à l'élément de nous donner ses pièces requises
+                        var requirements = element.GetRequiredParts(locker.Height, cabinet.Width, locker.Position);
+
+                        // On les ajoute au panier sans jamais savoir si c'est une porte, un tiroir ou une étagère !
+                        foreach (var req in requirements)
                         {
-                            case 32: doorWidth = 32; doorQty = 1; break;
-                            case 42: doorWidth = 42; doorQty = 1; break;
-                            case 52: doorWidth = 52; doorQty = 1; break;
-                            case 62: doorWidth = 32; doorQty = 2; break;
-                            case 80: doorWidth = 42; doorQty = 2; break;
-                            case 100: doorWidth = 52; doorQty = 2; break;
-                            case 120: doorWidth = 62; doorQty = 2; break;
-                        }
-
-                        AddPartLine(connection, result, "Door", doorWidth, null, locker.Height, locker.DoorColor, doorQty, $"{prefix} Porte(s)");
-
-                        bool isGlass = string.Equals(locker.DoorColor, "Glass", StringComparison.OrdinalIgnoreCase) ||
-                                    string.Equals(locker.DoorColor, "Verre", StringComparison.OrdinalIgnoreCase);
-
-                        if (!isGlass)
-                        {
-                            AddPartLine(connection, result, "Cup handle", null, null, null, null, doorQty, $"{prefix} Coupelles/Poignées");
+                            AddPartLine(connection, result, req.LogicalKind, req.Width, req.Depth, req.Height, req.Color, req.Quantity, req.Label);
                         }
                     }
                 }
