@@ -20,7 +20,7 @@ namespace KitBox.Models
             get
             {
                 if (Status == "In progress" || Status == "En attente") return "#FF5252";
-                if (Status == "Complète" || Status == "Completed") return "#4CAF50";
+                if (Status == "Complète" || Status == "Complete") return "#4CAF50";
                 return "#000000";
             }
         }

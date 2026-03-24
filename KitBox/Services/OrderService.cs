@@ -26,7 +26,7 @@ namespace KitBox.Services
                 cmdOrder.Parameters.AddWithValue("@date", DateTime.Now.ToString("yyyy-MM-dd"));
                 cmdOrder.Parameters.AddWithValue("@email", string.IsNullOrWhiteSpace(clientEmail) ? DBNull.Value : (object)clientEmail);
                 cmdOrder.Parameters.AddWithValue("@price", totalPrice);
-                cmdOrder.Parameters.AddWithValue("@status", isComplete ? "Complète" : "En attente");
+                cmdOrder.Parameters.AddWithValue("@status", isComplete ? "Complete" : "In progress");
 
                 int orderId = Convert.ToInt32(cmdOrder.ExecuteScalar());
 
@@ -96,7 +96,7 @@ namespace KitBox.Services
                 SELECT ID_ORDER, Date, Client_email, Total_price, Status 
                 FROM `Order` 
                 ORDER BY 
-                CASE WHEN Status = 'En attente' THEN 0 ELSE 1 END ASC,
+                CASE WHEN Status = 'In progress' THEN 0 ELSE 1 END ASC,
                 ID_ORDER ASC;";
 
                 using var cmd = new MySqlCommand(query, connection);
@@ -129,7 +129,7 @@ namespace KitBox.Services
                 using var connection = new MySqlConnection(ConnectionString);
                 connection.Open();
 
-                string query = "UPDATE `Order` SET Status = 'Complète' WHERE ID_ORDER = @id;";
+                string query = "UPDATE `Order` SET Status = 'Complete' WHERE ID_ORDER = @id;";
 
                 using var cmd = new MySqlCommand(query, connection);
                 cmd.Parameters.AddWithValue("@id", orderId);
