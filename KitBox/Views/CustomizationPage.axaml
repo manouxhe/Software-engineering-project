@@ -5,6 +5,7 @@
              x:Class="KitBox.Views.CustomizationPage"
              x:DataType="vm:CustomizationViewModel"
              Background="White">
+             
 
     <Grid>
         <Grid ColumnDefinitions="*, *">
@@ -138,11 +139,26 @@
                         <CheckBox Content="Ajouter des portes"
                                   IsChecked="{Binding HasDoor}"
                                   Foreground="Black">
+                            <CheckBox.Styles>
+                                <Style Selector="CheckBox:pointerover /template/ ContentPresenter#ContentPresenter">
+                                    <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                                </Style>
+                                
+                                <Style Selector="CheckBox:pointerover /template/ Border#NormalRectangle">
+                                    <Setter Property="BorderBrush" Value="#2196F3" />
+                                </Style>
+                            </CheckBox.Styles>
                             <CheckBox.Resources>
-                                <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeUnchecked" Color="Gray" />
+                                <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeUnchecked" Color="#737373" />
                                 <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillChecked" Color="#2196F3" />
                                 <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeChecked" Color="#2196F3" />
-                                <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundChecked" Color="White" />
+                                <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundChecked" Color="#000000" />
+
+                                <SolidColorBrush x:Key="CheckBoxForegroundPointerOver" Color="#000000" />
+                                <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeUncheckedPointerOver" Color="#000000" />
+                                <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPointerOver" Color="#1976D2" />
+                                <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundCheckedPointerOver" Color="#000000" />
+
                             </CheckBox.Resources>
                         </CheckBox>
                     </StackPanel>

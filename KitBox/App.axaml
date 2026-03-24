@@ -3,6 +3,7 @@
              xmlns:local="using:KitBox"
              x:Class="KitBox.App"
              RequestedThemeVariant="Default">
+    
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
@@ -38,8 +39,12 @@
             <Setter Property="Foreground" Value="Black" />
         </Style>
 
-        <Style Selector="Button.secondary:pressed /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#9E9E9E" />
+        <Style Selector="CheckBox:pointerover /template/ ContentPresenter#ContentPresenter">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+        </Style>
+
+        <Style Selector="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
         </Style>
 
     </Application.Styles>
