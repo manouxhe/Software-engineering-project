@@ -6,7 +6,7 @@
 
     <Grid RowDefinitions="*, Auto, *" Margin="20">
         <StackPanel Grid.Row="1" Spacing="20" HorizontalAlignment="Center">
-            <TextBlock Text="Kitbox"
+            <TextBlock Text="KitBox"
                        FontSize="48"
                        FontWeight="Bold"
                        HorizontalAlignment="Center"
@@ -29,18 +29,18 @@
             </Button>
 
             <Button Content="Manager Space"
-                    Classes= "primary"
+                    Classes= "secondary"
                     Command="{Binding ManagerCommand}"
                     HorizontalAlignment="Center"
-                    Padding="30,15"
-                    FontSize="18"
+                    Padding="20,10"
+                    FontSize="12"
                     CornerRadius="8">
             </Button>
 
         </StackPanel>
 
         <TextBlock Grid.Row="2"
-                   Text="© 2026 Kitbox - Flexible storage solution"
+                   Text="© 2026 KitBox - Flexible storage solution"
                    VerticalAlignment="Bottom"
                    HorizontalAlignment="Center"
                    FontSize="12"
