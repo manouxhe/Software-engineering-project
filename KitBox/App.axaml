@@ -2,8 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:KitBox"
              x:Class="KitBox.App"
+<<<<<<< HEAD
              RequestedThemeVariant="Default">
     
+=======
+             RequestedThemeVariant="Light">
+>>>>>>> 6cc2cbeb60e3847ae0c33a1879874e8dbaaa3c48
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
@@ -16,6 +20,7 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
         </Style>
 
         <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">

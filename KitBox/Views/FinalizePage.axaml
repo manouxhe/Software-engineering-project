@@ -7,24 +7,24 @@
 
   <ScrollViewer>
     <StackPanel Margin="30" Spacing="14">
-      <TextBlock Text="Finalisation de l'achat" FontSize="28" FontWeight="Bold"/>
-      <TextBlock Text="{Binding Items.Count, StringFormat='Votre panier contient {0} armoire(s).'}"/>
+      <TextBlock Text="Checkout" FontSize="28" FontWeight="Bold"/>
+      <TextBlock Text="{Binding Items.Count, StringFormat='Your cart contains {0} cabinet(s).'}"/>
 
       <Border Background="#F4F4F4" Padding="12" CornerRadius="8">
         <ItemsControl ItemsSource="{Binding Items}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <StackPanel Margin="0,0,0,8">
-                <TextBlock Text="{Binding Width, StringFormat='Armoire : largeur {0}'}" FontWeight="Bold"/>
-                <TextBlock Text="{Binding Depth, StringFormat='Profondeur : {0}'}"/>
-                <TextBlock Text="{Binding Lockers.Count, StringFormat='Casiers : {0}'}"/>
+                <TextBlock Text="{Binding Width, StringFormat='Cabinet : Width {0}'}" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Depth, StringFormat='Depth : {0}'}"/>
+                <TextBlock Text="{Binding Lockers.Count, StringFormat='Lockers : {0}'}"/>
               </StackPanel>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </Border>
 
-      <TextBlock Text="{Binding TotalPrice, StringFormat='Total estimé : {0} €'}" FontSize="18" FontWeight="SemiBold" Foreground="Black"/>
+      <TextBlock Text="{Binding TotalPrice, StringFormat='Total price : {0} €'}" FontSize="18" FontWeight="SemiBold" Foreground="Black"/>
       <TextBlock Text="{Binding PaymentMessage}" TextWrapping="Wrap" Foreground="Black"/>
 
       <ItemsControl ItemsSource="{Binding InfoMessages}">
@@ -43,16 +43,16 @@
         </ItemsControl.ItemTemplate>
       </ItemsControl>
 
-      <TextBox Watermark="Votre adresse e-mail"
+      <TextBox Watermark="Your email adress"
                Text="{Binding EmailAddress}"
                IsVisible="{Binding HasStockIssue}"/>
 
       <StackPanel Orientation="Horizontal" Spacing="12">
-        <Button Content="Finaliser / Payer"
+        <Button Content="Complete order / Pay"
                 Command="{Binding PayCommand}"
                 Classes="primary"
                 Padding="12"/>
-        <Button Content="Retour accueil"
+        <Button Content="Back to home"
                 Command="{Binding GoHomeCommand}"
                 Classes="secondary"
                 Padding="12"/>

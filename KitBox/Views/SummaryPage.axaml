@@ -6,18 +6,18 @@
              Background="White">
 
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
-        <TextBlock Text="Récapitulatif de votre commande" FontSize="28" FontWeight="Bold" Foreground="Black"/>
+        <TextBlock Text="Order summary" FontSize="28" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center"/>
 
-        <TextBlock Text="{Binding FinalCabinet.Lockers.Count, StringFormat='Votre armoire contient {0} casiers.'}" Foreground="Gray" FontSize="18"/>
+        <TextBlock Text="{Binding FinalCabinet.Lockers.Count, StringFormat='Your cabinet contains {0} lockers.'}" Foreground="Gray" FontSize="18"/>
 
         <StackPanel Orientation="Horizontal" Spacing = "12" HorizontalAlignment="Center">
-            <Button Content= "Ajouter au panier"
+            <Button Content= "Add to cart"
                     Command="{Binding AddToCartCommand}"
                     Classes="primary"
                     Padding="15"
                     HorizontalAlignment = "Center"/>
         </StackPanel>
-        <Button Content="Retour à la personnalisation"
+        <Button Content="Back to customization"
                 Command="{Binding GoBackCommand}"
                 Classes="secondary"
                 HorizontalAlignment="Center" Padding="15"/>

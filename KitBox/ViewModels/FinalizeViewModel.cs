@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Reactive;
 using ReactiveUI;
 using KitBox.Models;
@@ -21,7 +22,6 @@ namespace KitBox.ViewModels
             set => this.RaiseAndSetIfChanged(ref _hasStockIssue, value);
         }
 
-        // On utilisera ce champ comme "Nom de client" pour la base de données
         private string _emailAddress = string.Empty;
         public string EmailAddress
         {
@@ -78,73 +78,65 @@ namespace KitBox.ViewModels
                     InfoMessages.Add(message);
                 }
 
-                foreach (var missing in checkout.MissingItems)
-                {
-                    StockAlerts.Add($"{missing.Label} : {missing.AvailableQuantity}/{missing.RequiredQuantity} en stock.");
-                }
             }
 
             HasStockIssue = StockAlerts.Count > 0 || InfoMessages.Count > 0;
 
             if (HasStockIssue)
             {
-                PaymentMessage = "Stock limité sur certains articles : laissez votre e-mail pour recevoir une notification de retour en stock.";
+                PaymentMessage = "Limited stock on some items: leave your email to receive a notification when they are back in stock.";
             }
             else
             {
-                PaymentMessage = "Tous les articles sont en stock. Vous pouvez payer maintenant.";
+                PaymentMessage = "All items are in stock. You can proceed with payment now.";
             }
         }
 
         private void OnPay()
         {
-            bool allSuccess = true;
+            // 1. Préparer un "méga dictionnaire" qui va contenir les pièces de TOUTES les armoires cumulées
+            var totalUsedParts = new Dictionary<string, int>();
 
-            // 1. On parcourt toutes les armoires du panier
             foreach (var cabinet in Items)
             {
-                // On recalcule pour récupérer les pièces exactes (UsedParts) à déduire du stock
                 var checkout = PartService.GetCheckoutDetails(cabinet);
 
-                // On utilise l'email comme identifiant client
-                string emailClient = EmailAddress;
-
-                // --- AJOUT POUR LE DIAGNOSTIC ---
-                Console.WriteLine($"\n--- DEBUG SAUVEGARDE COMMANDE ---");
-                Console.WriteLine($"Nombre de pièces différentes à déduire : {checkout.UsedParts.Count}");
-                foreach (var p in checkout.UsedParts)
+                // On fusionne les pièces de cette armoire dans le dictionnaire global
+                foreach (var part in checkout.UsedParts)
                 {
-                    Console.WriteLine($"ID: {p.Key} -> Quantité à déduire: {p.Value}");
-                }
-                Console.WriteLine($"---------------------------------\n");
-                // --------------------------------
-
-                // 2. On lance la TRANSACTION SQL (Sauvegarde Commande + Armoire + Casiers + MàJ Stock)
-                bool success = OrderService.FinalizeOrder(emailClient, checkout.TotalPrice, checkout.MissingItems.Count == 0, cabinet, checkout.UsedParts);
-
-                if (!success)
-                {
-                    allSuccess = false;
+                    if (!totalUsedParts.ContainsKey(part.Key))
+                    {
+                        totalUsedParts[part.Key] = 0;
+                    }
+                    totalUsedParts[part.Key] += part.Value;
                 }
             }
 
-            // 3. Gestion de l'affichage après la tentative de sauvegarde
-            if (allSuccess)
+            string nomClient = string.IsNullOrWhiteSpace(EmailAddress) ? "Client" : EmailAddress;
+
+            // 2. On lance la TRANSACTION SQL UNE SEULE FOIS en envoyant la liste complète des armoires (Items)
+            bool isComplete = !HasStockIssue; // Si y'a pas de problème de stock, la commande est Complète
+
+            // On lance la TRANSACTION SQL UNE SEULE FOIS avec la liste complète des armoires (Items)
+            bool success = OrderService.FinalizeOrder(nomClient, TotalPrice, isComplete, Items, totalUsedParts);
+
+            // 3. Gestion de l'affichage
+            if (success)
             {
-                Items.Clear(); // On vide le panier car tout a été enregistré
+                Items.Clear(); // On vide le panier
 
                 if (HasStockIssue)
                 {
-                    PaymentMessage = $"Commande enregistrée en base de données ! Un e-mail sera envoyé à {EmailAddress} dès l'arrivée des pièces.";
+                    PaymentMessage = $"Order saved! An email will be sent to {nomClient} as soon as the out-of-stock items arrive.";
                 }
                 else
                 {
-                    PaymentMessage = "Paiement validé ! Votre commande est enregistrée et le stock a été mis à jour.";
+                    PaymentMessage = "Payment confirmed! Your order has been successfully recorded and the stock has been updated.";
                 }
             }
             else
             {
-                PaymentMessage = "Erreur de connexion à la base de données. La commande a été annulée.";
+                PaymentMessage = "Connection error. The order has been cancelled.";
             }
         }
 

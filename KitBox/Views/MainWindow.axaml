@@ -13,7 +13,7 @@
     <!-- Navbar -->
     <Border Grid.Row="0" Background="#2196F3" Padding="6">
       <DockPanel LastChildFill="True">
-        <TextBlock Text="KitBox" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+        <TextBlock Text="KitBox" FontSize="18" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
 
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="1" VerticalAlignment="Center" HorizontalAlignment="Right">
           <Border Background="#2196F3" CornerRadius="999" Padding="6,2">
@@ -52,7 +52,7 @@
             Padding="14">
 
       <Grid RowDefinitions="Auto,*,Auto" RowSpacing="10">
-        <TextBlock Text="Votre panier" Foreground ="#000000" Grid.Row="0" FontSize="22" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,6,0,28"/>
+        <TextBlock Text="Your cart" Foreground ="#000000" Grid.Row="0" FontSize="22" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,6,0,28"/>
 
         <ScrollViewer Grid.Row="1">
           <ItemsControl ItemsSource="{Binding CartItems}">
@@ -60,10 +60,10 @@
               <DataTemplate>
                 <Border Background="#D0D0D0" CornerRadius="10" Padding="8" Margin="0,0,10,10">
                   <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="10">
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Armoire n°xx" FontWeight = "Bold" Foreground = "Black" Margin = "0,0,0,4"/> <!--à finir-->
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Width, StringFormat='Largeur: {0}'}"/>
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Depth, StringFormat='Profondeur: {0}'}"/>
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding Lockers.Count, StringFormat='Casiers: {0}'}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Cabinet n°xx" FontWeight = "Bold" Foreground = "Black" Margin = "0,0,0,4"/> <!--à finir-->
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Width, StringFormat='Width: {0}'}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Depth, StringFormat='Depth: {0}'}"/>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding Lockers.Count, StringFormat='Lockers: {0}'}"/>
                     <Button Grid.Row="1" Grid.Column="1"
                             Content="🚮"
                             Command="{Binding #RootWindow.DataContext.RemoveFromCartCommand}"
@@ -82,7 +82,7 @@
         </ScrollViewer>
 
         <Button Grid.Row="3"
-                Content="Finaliser"
+                Content="Finalize"
                 Command="{Binding FinalizeCommand}"
                 Classes="primary"
                 Padding="16,10"
@@ -91,14 +91,14 @@
                 Width = "160"/>
 
         <Button Grid.Row="3"
-                Content="Continuer"
+                Content="Continue"
                 Command="{Binding AddNewCabinet}"
                 Classes="primary"
                 Padding="16,10"
                 HorizontalAlignment = "Left"
                 VerticalAlignment = "Center"
                 Width = "160"/>
-    
+
       </Grid>
 
     </Border>

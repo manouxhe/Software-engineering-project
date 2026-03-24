@@ -19,12 +19,12 @@ namespace KitBox.Models
         {
             get
             {
-                if (Status == "En attente") return "#FF5252";
-                if (Status == "Complète") return "#4CAF50";
+                if (Status == "In progress" || Status == "En attente") return "#FF5252";
+                if (Status == "Complète" || Status == "Completed") return "#4CAF50";
                 return "#000000";
             }
         }
-        public bool IsPending => Status == "En attente";
+        public bool IsPending => Status == "In progress" || Status == "En attente";
 
         // Relation: Une commande contient plusieurs armoires (1..N)
         public List<Cabinet> Cabinets { get; set; } = new List<Cabinet>();

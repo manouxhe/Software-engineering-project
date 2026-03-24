@@ -5,12 +5,12 @@
              x:DataType="vm:ManagerLoginViewModel">
 
   <StackPanel Spacing="12" Margin="24" MaxWidth="420" VerticalAlignment="Center">
-    <TextBlock Text="Connexion Manager" FontSize="26" FontWeight="Bold" Foreground="Black" Margin="0,0,0,22" HorizontalAlignment="Center" />
+    <TextBlock Text="Manager Login" FontSize="26" FontWeight="Bold" Foreground="Black" Margin="0,0,0,22" HorizontalAlignment="Center" />
 
-    <TextBlock Text="E-mail" Foreground="Black"/>
+    <TextBlock Text="Email" Foreground="Black"/>
     <TextBox Text="{Binding Email}" Watermark="something@domain.xxx"/>
 
-    <TextBlock Text="Mot de passe" Foreground="Black"/>
+    <TextBlock Text="Password" Foreground="Black"/>
     <TextBox Text="{Binding Password}" PasswordChar="*" Watermark="••••••••"/>
 
     <TextBlock Text="{Binding ErrorMessage}"
@@ -19,8 +19,8 @@
                FontWeight ="Bold"/>
 
     <StackPanel Orientation="Horizontal" Spacing="12">
-      <Button Content="Se connecter" Command="{Binding LoginCommand}" Background="#2196F3" />
-      <Button Content="Annuler" Command="{Binding CancelCommand}" Background="#2196F3"/>
+      <Button Content="Log in" Command="{Binding LoginCommand}" Classes="primary" />
+      <Button Content="Cancel" Command="{Binding CancelCommand}" Classes="secondary"/>
     </StackPanel>
-    </StackPanel>
+  </StackPanel>
 </UserControl>

@@ -12,14 +12,14 @@
                        HorizontalAlignment="Center"
                        Foreground="#2196F3"/>
 
-            <TextBlock Text="Concevez votre armoire sur mesure en quelques clics."
+            <TextBlock Text="Create your custom cabinet in just a few clicks."
                        FontSize="18"
                        TextWrapping="Wrap"
                        TextAlignment="Center"
                        Opacity="0.7"
                        Foreground="Black"/>
 
-            <Button Content="Démarrer la conception de l'armoire"
+            <Button Content="Start the conception of your cabinet"
                     Classes= "primary"
                     Command="{Binding StartCommand}"
                     HorizontalAlignment="Center"
@@ -28,7 +28,7 @@
                     CornerRadius="8">
             </Button>
 
-            <Button Content="Espace manager"
+            <Button Content="Manager Space"
                     Classes= "primary"
                     Command="{Binding ManagerCommand}"
                     HorizontalAlignment="Center"
@@ -40,7 +40,7 @@
         </StackPanel>
 
         <TextBlock Grid.Row="2"
-                   Text="© 2026 Kitbox - Solution de rangement modulable"
+                   Text="© 2026 Kitbox - Flexible storage solution"
                    VerticalAlignment="Bottom"
                    HorizontalAlignment="Center"
                    FontSize="12"

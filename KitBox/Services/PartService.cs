@@ -358,5 +358,45 @@ namespace KitBox.Services
 
             return false;
         }
+
+        public static List<Part> GetAllParts()
+        {
+            var parts = new List<Part>();
+            try
+            {
+                using var connection = new MySqlConnection(ConnectionString);
+                connection.Open();
+
+                // L'astuce SQL : On trie d'abord les ruptures de stock (0), puis le reste (1), et enfin par ID
+                string query = @"
+                    SELECT ID_PART, Kind, Dimensions, In_Stock, Minimal_stock, Customer_price 
+                    FROM Part 
+                    ORDER BY 
+                    CASE WHEN In_Stock < Minimal_stock THEN 0 ELSE 1 END ASC,
+                    ID_PART ASC;";
+
+                using var cmd = new MySqlCommand(query, connection);
+                using var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    parts.Add(new Part
+                    {
+                        Code = reader.GetString("ID_PART"),
+                        Kind = reader.IsDBNull(reader.GetOrdinal("Kind")) ? "" : reader.GetString("Kind"),
+                        Dimensions = reader.IsDBNull(reader.GetOrdinal("Dimensions")) ? "" : reader.GetString("Dimensions"),
+                        Stock = reader.GetInt32("In_Stock"),
+                        MinStock = reader.GetInt32("Minimal_stock"),
+                        ClientPrice = reader.IsDBNull(reader.GetOrdinal("Customer_price")) ? 0 : reader.GetDecimal("Customer_price")
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la récupération des pièces : {ex.Message}");
+            }
+
+            return parts;
+        }
     }
 }
