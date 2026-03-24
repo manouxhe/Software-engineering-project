@@ -4,6 +4,7 @@ using System.Linq;
 using ReactiveUI;
 using KitBox.Models;
 using KitBox.Services;
+using System;
 
 namespace KitBox.ViewModels
 {
@@ -53,6 +54,14 @@ namespace KitBox.ViewModels
         {
             LoadParts();
 
+            MessageBus.Current.Listen<string>().Subscribe(message =>
+            {
+                if (message == "StockUpdated")
+                {
+                    LoadParts(); // On met à jour la liste des pièces en temps réel !
+                }
+            });
+
             OpenOrderPopupCommand = ReactiveCommand.Create<Part>(part =>
             {
                 if (part == null) return;
@@ -88,8 +97,10 @@ namespace KitBox.ViewModels
                     if (success)
                     {
                         IsPopupOpen = false;
-                        // On recharge la liste pour voir les changements (optionnel car la livraison n'est pas immédiate en vrai)
                         LoadParts();
+
+                        // 2. NOUVEAU : On prévient l'autre onglet qu'une nouvelle commande a été passée
+                        MessageBus.Current.SendMessage("OrderCreated");
                     }
                 }
             }, canValidate);

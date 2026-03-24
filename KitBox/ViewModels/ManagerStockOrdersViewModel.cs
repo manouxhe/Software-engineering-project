@@ -3,6 +3,7 @@ using System.Reactive;
 using ReactiveUI;
 using KitBox.Models;
 using KitBox.Services;
+using System;
 
 namespace KitBox.ViewModels
 {
@@ -15,6 +16,14 @@ namespace KitBox.ViewModels
         {
             LoadStockOrders();
 
+            MessageBus.Current.Listen<string>().Subscribe(message =>
+            {
+                if (message == "OrderCreated")
+                {
+                    LoadStockOrders(); // Fait apparaître la commande instantanément !
+                }
+            });
+
             ValidateStockOrderCommand = ReactiveCommand.Create<StockOrder>(order =>
             {
                 if (order != null && order.Status == "In progress")
@@ -22,7 +31,10 @@ namespace KitBox.ViewModels
                     bool success = StockOrderService.ReceiveStockOrder(order.Id, order.PartCode, order.Quantity);
                     if (success)
                     {
-                        LoadStockOrders(); // Recharge la liste pour mettre à jour l'affichage
+                        LoadStockOrders();
+
+                        // 2. NOUVEAU : On prévient l'autre onglet que le stock physique a augmenté
+                        MessageBus.Current.SendMessage("StockUpdated");
                     }
                 }
             });

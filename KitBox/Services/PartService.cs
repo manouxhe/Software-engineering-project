@@ -115,9 +115,11 @@ namespace KitBox.Services
             {
                 Console.WriteLine($"Erreur DB: {ex.Message}");
                 if (heights.Count == 0) heights.AddRange(new[] { "10", "42", "52" });
-                if (panelColors.Count == 0) panelColors.AddRange(new[] { "Bleu", "Brun" });
-                if (doorColors.Count == 0) doorColors.AddRange(new[] { "Bleu", "Brun", "Verre" });
-                if (angleIronColors.Count == 0) angleIronColors.AddRange(new[] { "Blanc", "Noir", "Galvanisé" });
+
+                // ON MET TOUT EN ANGLAIS ICI AUSSI
+                if (panelColors.Count == 0) panelColors.AddRange(new[] { "Blue", "Marron", "White", "Black" });
+                if (doorColors.Count == 0) doorColors.AddRange(new[] { "Blue", "Marron", "Glass", "White", "Black" });
+                if (angleIronColors.Count == 0) angleIronColors.AddRange(new[] { "White", "Black", "Galva" });
             }
 
             return new Dictionary<string, List<string>>
