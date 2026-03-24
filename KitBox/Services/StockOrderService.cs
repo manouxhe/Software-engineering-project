@@ -86,7 +86,9 @@ namespace KitBox.Services
                     SELECT so.ID_STOCKORDER, so.Date, so.Price, so.Quantity, so.ID_PART, so.ID_SUPPLIER, so.Status, s.Name 
                     FROM StockOrder so
                     JOIN Supplier s ON so.ID_SUPPLIER = s.ID_SUPPLIER
-                    ORDER BY so.Date DESC;";
+                    ORDER BY 
+                        CASE WHEN so.Status = 'In progress' THEN 0 ELSE 1 END ASC,
+                        so.Date DESC;";
 
                 using var cmd = new MySqlCommand(query, connection);
                 using var reader = cmd.ExecuteReader();

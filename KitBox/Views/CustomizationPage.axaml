@@ -5,7 +5,7 @@
              x:Class="KitBox.Views.CustomizationPage"
              x:DataType="vm:CustomizationViewModel"
              Background="White">
-             
+
 
     <Grid>
         <Grid ColumnDefinitions="*, *">
@@ -39,15 +39,15 @@
                                     <Grid ColumnDefinitions="*, Auto, Auto">
 
                                         <StackPanel Grid.Column="0">
-                                            <TextBlock Text="{Binding Position, StringFormat='Casier n°{0}'}" FontWeight="Bold" Foreground="Black"/>
-                                            <TextBlock Text="{Binding Height, StringFormat='Hauteur : {0} cm'}" Foreground="#555"/>
-                                            <TextBlock Text="{Binding PanelColor, StringFormat='Couleur : {0}'}" Foreground="#555"/>
-                                            <TextBlock IsVisible="{Binding HasDoor}" Text="{Binding DoorColor, StringFormat='Porte : {0}'}" Foreground="#555"/>
-                                            <TextBlock IsVisible="{Binding !HasDoor}" Text="Sans porte" Foreground="#555"/>
+                                            <TextBlock Text="{Binding Position, StringFormat='Locker n°{0}'}" FontWeight="Bold" Foreground="Black"/>
+                                            <TextBlock Text="{Binding Height, StringFormat='Height : {0} cm'}" Foreground="#555"/>
+                                            <TextBlock Text="{Binding PanelColor, StringFormat='Color : {0}'}" Foreground="#555"/>
+                                            <TextBlock IsVisible="{Binding HasDoor}" Text="{Binding DoorColor, StringFormat='Door : {0}'}" Foreground="#555"/>
+                                            <TextBlock IsVisible="{Binding !HasDoor}" Text="Without doors" Foreground="#555"/>
                                         </StackPanel>
 
                                         <Button Grid.Column="1"
-                                                Content="Modifier"
+                                                Content="Modify"
                                                 Foreground="#2196F3"
                                                 Background="Transparent"
                                                 FontWeight="Bold"
@@ -58,7 +58,7 @@
                                                 CommandParameter="{Binding}"/>
 
                                         <Button Grid.Column="2"
-                                                Content="Supprimer"
+                                                Content="Delete"
                                                 Foreground="Red"
                                                 Background="Transparent"
                                                 FontWeight="Bold"
@@ -108,7 +108,7 @@
                     VerticalAlignment="Stretch"
                     HorizontalAlignment="Stretch" />
 
-                    <TextBlock Text="Ajoutez un casier pour voir l'aperçu"
+                    <TextBlock Text="Add a locker to get a view"
                                IsVisible="{Binding !CurrentCabinet.Lockers.Count}"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Center"
@@ -136,14 +136,14 @@
                     </StackPanel>
 
                     <StackPanel>
-                        <CheckBox Content="Add a door"
+                        <CheckBox Content="Add doors"
                                   IsChecked="{Binding HasDoor}"
                                   Foreground="Black">
                             <CheckBox.Styles>
                                 <Style Selector="CheckBox:pointerover /template/ ContentPresenter#ContentPresenter">
                                     <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
                                 </Style>
-                                
+
                                 <Style Selector="CheckBox:pointerover /template/ Border#NormalRectangle">
                                     <Setter Property="BorderBrush" Value="#2196F3" />
                                 </Style>

@@ -21,7 +21,7 @@ namespace KitBox.ViewModels
             set => this.RaiseAndSetIfChanged(ref _isPopupOpen, value);
         }
 
-        private string _popupTitle = "Nouveau Casier";
+        private string _popupTitle = "New Locker";
         public string PopupTitle
         {
             get => _popupTitle;
@@ -104,7 +104,7 @@ namespace KitBox.ViewModels
             OpenPopupCommand = ReactiveCommand.Create(() =>
             {
                 _editingLocker = null;
-                PopupTitle = "Nouveau Casier";
+                PopupTitle = "New Locker";
                 SelectedHeight = null;
                 SelectedPanelColor = null;
                 HasDoor = false;
@@ -134,7 +134,7 @@ namespace KitBox.ViewModels
         {
             if (lockerToEdit == null) return;
             _editingLocker = lockerToEdit;
-            PopupTitle = $"Modifier le casier n°{lockerToEdit.Position}";
+            PopupTitle = $"Modify Locker {lockerToEdit.Position}";
             SelectedHeight = lockerToEdit.Height.ToString();
             SelectedPanelColor = lockerToEdit.PanelColor;
             HasDoor = lockerToEdit.HasDoor;
