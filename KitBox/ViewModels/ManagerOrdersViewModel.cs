@@ -85,12 +85,12 @@ namespace KitBox.ViewModels
                 }
                 else
                 {
-                    OrderDetailsList.Add("Aucune pièce détectée.");
+                    OrderDetailsList.Add("Error : No parts found.");
                 }
             }
             else
             {
-                OrderDetailsList.Add("Erreur : impossible de retrouver le meuble pour cette commande.");
+                OrderDetailsList.Add("Error : Cannot find cabinet for this order.");
             }
             IsPopupVisible = true;
         }

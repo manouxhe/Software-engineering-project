@@ -116,7 +116,7 @@ namespace KitBox.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de la récupération des commandes : {ex.Message}");
+                Console.WriteLine($"Error retrieving orders : {ex.Message}");
             }
 
             return orders;
@@ -139,7 +139,7 @@ namespace KitBox.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de la mise à jour du statut : {ex.Message}");
+                Console.WriteLine($"Error updating order status : {ex.Message}");
                 return false;
             }
         }
@@ -191,7 +191,7 @@ namespace KitBox.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de la récupération de l'armoire : {ex.Message}");
+                Console.WriteLine($"Error of the cabinet retrieval : {ex.Message}");
                 return null;
             }
         }
