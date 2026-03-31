@@ -102,16 +102,16 @@ public class LockerVisualizer : Control
         // soit respecté, mais que tout rentre toujours dans les bounds.
         // On fixe une hauteur de référence, et on calcule largeur/profondeur proportionnellement.
         double refHeight = 100.0; // unité de référence
-        double normWidth  = realWidth  / totalHeight * refHeight;
-        double normDepth  = realDepth  / totalHeight * refHeight;
+        double normWidth = realWidth / totalHeight * refHeight;
+        double normDepth = realDepth / totalHeight * refHeight;
         double normHeight = refHeight;
 
         double angleH = Math.PI / 10;
         double angleV = Math.PI / 14;
         double margin = 30;
 
-        double projectedWidth  = (normWidth + normDepth) * Math.Cos(angleH);
-        double projectedHeight = (normWidth + normDepth) * Math.Sin(angleV) + normHeight;       
+        double projectedWidth = (normWidth + normDepth) * Math.Cos(angleH);
+        double projectedHeight = (normWidth + normDepth) * Math.Sin(angleV) + normHeight;
 
         double scale = Math.Min(
             (Bounds.Width - margin * 2) / projectedWidth,
@@ -120,10 +120,10 @@ public class LockerVisualizer : Control
         if (scale <= 0) return;
 
         // Centrage horizontal et vertical dans les bounds
-        double totalProjectedW = projectedWidth  * scale;
+        double totalProjectedW = projectedWidth * scale;
         double totalProjectedH = projectedHeight * scale;
         double originX = Bounds.Width / 2;
-        double originY = margin + normHeight * scale;   
+        double originY = margin + normHeight * scale;
 
         Point origin = new Point(originX, originY);
 
@@ -169,6 +169,7 @@ public class LockerVisualizer : Control
             //on dessine le dessus
             DrawFace(context, topBrush, outlinePen, tFL, tFR, tBR, tBL);
             //si le casier est ouvert ou a une porte en verre alors on dessine aussi les faces intérieures
+            //si le casier est ouvert ou a une porte en verre alors on dessine aussi les faces intérieures
             if (!hasDoor || isGlassDoor)
             {
                 DrawFace(context, shelfBrush, outlinePen, bFL, bFR, ibFR, ibFL);
@@ -181,9 +182,26 @@ public class LockerVisualizer : Control
             if (hasDoor)
             {
                 IBrush doorBrush = ParseColor(doorColorStr);
-                DrawFace(context, doorBrush, outlinePen, bFL, bFR, tFR, tFL);
-                var handlePos = Project(normWidth / 4, currentY + h / 2, fz, origin, scale, angleH, angleV);
-                context.DrawEllipse(Brushes.Silver, new Pen(Brushes.Gray, 0.5), handlePos, 3, 3);//poignée
+
+                // Milieu de la face avant (sépare les deux portes)
+                Point bFM = Project(0, currentY, fz, origin, scale, angleH, angleV);
+                Point tFM = Project(0, currentY + h, fz, origin, scale, angleH, angleV);
+
+                // Porte gauche
+                DrawFace(context, doorBrush, outlinePen, bFL, bFM, tFM, tFL);
+                // Porte droite
+                DrawFace(context, doorBrush, outlinePen, bFM, bFR, tFR, tFM);
+
+                // Poignées uniquement si pas en verre
+                if (!isGlassDoor)
+                {
+                    // Poignée porte gauche (quart gauche)
+                    var handleL = Project(-normWidth / 4, currentY + h / 2, fz, origin, scale, angleH, angleV);
+                    context.DrawEllipse(Brushes.Silver, new Pen(Brushes.Gray, 0.5), handleL, 3, 3);
+                    // Poignée porte droite (quart droit)
+                    var handleR = Project(normWidth / 4, currentY + h / 2, fz, origin, scale, angleH, angleV);
+                    context.DrawEllipse(Brushes.Silver, new Pen(Brushes.Gray, 0.5), handleR, 3, 3);
+                }
             }
             //dessin des cornière
             context.DrawLine(ironPen, bFL, tFL);
