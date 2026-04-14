@@ -154,6 +154,9 @@ namespace KitBox.ViewModels
 
                 int index = Lockers.IndexOf(_editingLocker);
                 if (index != -1) Lockers[index] = _editingLocker;
+
+                Lockers.Clear();
+                foreach (var l in CurrentCabinet.Lockers.AsEnumerable().Reverse()) Lockers.Add(l);
             }
             else
             {

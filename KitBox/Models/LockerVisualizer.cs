@@ -53,14 +53,22 @@ public class LockerVisualizer : Control
         base.OnPropertyChanged(change);
         if (change.Property == LockersSourceProperty)
         {
-            //si LockersSource change on se désabonne de l'ancienne collection et s'abonne à la nouvelle
             if (change.OldValue is INotifyCollectionChanged oldCollection)
+            {
                 oldCollection.CollectionChanged -= OnLockersCollectionChanged;
+                if (change.OldValue is IEnumerable<object> oldItems)
+                    foreach (var item in oldItems.OfType<System.ComponentModel.INotifyPropertyChanged>())
+                        item.PropertyChanged -= OnLockerPropertyChanged;
+            }
             if (change.NewValue is INotifyCollectionChanged newCollection)
+            {
                 newCollection.CollectionChanged += OnLockersCollectionChanged;
+                if (change.NewValue is IEnumerable<object> newItems)
+                    foreach (var item in newItems.OfType<System.ComponentModel.INotifyPropertyChanged>())
+                        item.PropertyChanged += OnLockerPropertyChanged;
+            }
             InvalidateVisual();
         }
-        //Si changement dans les dimensions et les couleurs on redessine
         if (change.Property == AngleIronBrushProperty ||
             change.Property == CabinetWidthProperty ||
             change.Property == CabinetDepthProperty)
@@ -68,6 +76,17 @@ public class LockerVisualizer : Control
     }
 
     private void OnLockersCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems != null)
+            foreach (var item in e.NewItems.OfType<System.ComponentModel.INotifyPropertyChanged>())
+                item.PropertyChanged += OnLockerPropertyChanged;
+        if (e.OldItems != null)
+            foreach (var item in e.OldItems.OfType<System.ComponentModel.INotifyPropertyChanged>())
+                item.PropertyChanged -= OnLockerPropertyChanged;
+        InvalidateVisual();
+    }
+
+    private void OnLockerPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         => InvalidateVisual();
 
     private Point Project(double x, double y, double z, Point origin, double scale, double angleH, double angleV)
@@ -164,10 +183,6 @@ public class LockerVisualizer : Control
             Point ibFR = Project(normWidth / 2, currentY, bz, origin, scale, angleH, angleV);
             Point itFL = Project(-normWidth / 2, currentY + h, bz, origin, scale, angleH, angleV);
             Point itFR = Project(normWidth / 2, currentY + h, bz, origin, scale, angleH, angleV);
-            //on dessine la face droite en relient le bas avant au bas arriere etc
-            DrawFace(context, sideBrush, outlinePen, bFR, bBR, tBR, tFR);
-            //on dessine le dessus
-            DrawFace(context, topBrush, outlinePen, tFL, tFR, tBR, tBL);
             //si le casier est ouvert ou a une porte en verre alors on dessine aussi les faces intérieures
             //si le casier est ouvert ou a une porte en verre alors on dessine aussi les faces intérieures
             if (!hasDoor || isGlassDoor)
@@ -178,6 +193,10 @@ public class LockerVisualizer : Control
                 DrawFace(context, shelfBrush, outlinePen, bFL, ibFL, itFL, tFL);
                 DrawFace(context, shelfBrush, outlinePen, bFR, ibFR, itFR, tFR);
             }
+            //on dessine la face droite en relient le bas avant au bas arriere etc
+            DrawFace(context, sideBrush, outlinePen, bFR, bBR, tBR, tFR);
+            //on dessine le dessus
+            DrawFace(context, topBrush, outlinePen, tFL, tFR, tBR, tBL);
             //si le casier a une porte (pas en verre) alors on dessine la face avant avec la couleur de porte + une petite ellipse pour représenter la poignée
             if (hasDoor)
             {
@@ -207,10 +226,6 @@ public class LockerVisualizer : Control
             context.DrawLine(ironPen, bFL, tFL);
             context.DrawLine(ironPen, bFR, tFR);
             context.DrawLine(ironPen, bBR, tBR);
-            context.DrawLine(ironPen, tFL, tFR);
-            context.DrawLine(ironPen, tFR, tBR);
-            context.DrawLine(ironPen, tFL, tBL);
-            context.DrawLine(ironPen, tBL, tBR);
 
             currentY += h;  //on monte pour pouvoir dessiner le casier suivant
         }
