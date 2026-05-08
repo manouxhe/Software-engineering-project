@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AvaloniaResource Include = "Assets\logo.png"/>
     <PackageReference Include="Avalonia" Version="11.3.9" />
     <PackageReference Include="Avalonia.Desktop" Version="11.3.9" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.9" />
