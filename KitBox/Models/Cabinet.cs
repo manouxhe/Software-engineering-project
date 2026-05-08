@@ -1,9 +1,16 @@
 using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace KitBox.Models
 {
-    public class Cabinet : IOrderItem
+    public class Cabinet : ObservableObject, IOrderItem
     {
+        private int _cartNumber;
+        public int CartNumber
+        {
+            get => _cartNumber;
+            set => SetProperty(ref _cartNumber, value);
+        }
         // PK: id_armoire
         public int Id { get; set; }
 

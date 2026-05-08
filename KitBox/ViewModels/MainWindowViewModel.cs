@@ -39,7 +39,7 @@ namespace KitBox.ViewModels
         public bool CartVisible => CartOpen && ShowCart;
 
         public ObservableCollection<Cabinet> CartItems {get;} = new();
-         public ICommand ToggleCartCommand { get; }
+        public ICommand ToggleCartCommand { get; }
         public ICommand CloseCartCommand { get; }
         public ICommand RemoveFromCartCommand { get; }
         public ICommand FinalizeCommand { get; }
@@ -54,7 +54,9 @@ namespace KitBox.ViewModels
             CloseCartCommand = ReactiveCommand.Create(() => {CartOpen = false;});
             RemoveFromCartCommand = ReactiveCommand.Create<Cabinet>(cab =>
             {
-                if (cab != null) CartItems.Remove(cab);
+                if (cab != null) {
+                    CartItems.Remove(cab);
+                    RefreshCartNumbers();}
             });
 
             ///Bouton "Finaliser" grisé si le panier ne contient pas d'armoire
@@ -105,9 +107,21 @@ namespace KitBox.ViewModels
         {
             if (cabinet == null) return;
 
-            if (!CartItems.Contains(cabinet)) CartItems.Add(cabinet);
+            if (!CartItems.Contains(cabinet))
+            {
+                CartItems.Add(cabinet);
+                RefreshCartNumbers();
+            } 
 
             CartOpen = true;
+        }
+
+        private void RefreshCartNumbers()
+        {
+            for (int i = 0; i < CartItems.Count; i++)
+            {
+                CartItems[i].CartNumber = i + 1;
+            }
         }
     }
 }

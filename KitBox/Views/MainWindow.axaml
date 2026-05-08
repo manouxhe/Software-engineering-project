@@ -64,7 +64,7 @@
               <DataTemplate>
                 <Border Background="#D0D0D0" CornerRadius="10" Padding="8" Margin="0,0,10,10">
                   <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="10">
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Cabinet n°xx" FontWeight = "Bold" Foreground = "Black" Margin = "0,0,0,4"/> <!--à finir-->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding CartNumber, StringFormat='Cabinet n°{0}'}" FontWeight = "Bold" Foreground = "Black" Margin = "0,0,0,4"/>
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Width, StringFormat='Width: {0}'}"/>
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Depth, StringFormat='Depth: {0}'}"/>
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding Lockers.Count, StringFormat='Lockers: {0}'}"/>
