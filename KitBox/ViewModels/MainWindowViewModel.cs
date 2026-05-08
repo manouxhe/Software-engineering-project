@@ -25,11 +25,18 @@ namespace KitBox.ViewModels
         /// Ajout d'un panier sur chacune des pages
         /// </summary>
         private bool _cartOpen;
-        public bool CartOpen
+         public bool CartOpen
         {
             get => _cartOpen;
             set => this.RaiseAndSetIfChanged(ref _cartOpen, value);
         }
+        private bool _showCart = true; ///pour n'afficher que dans la partie utile au client
+        public bool ShowCart
+        {
+            get => _showCart;
+            set => this.RaiseAndSetIfChanged(ref _showCart, value);
+        }
+        public bool CartVisible => CartOpen && ShowCart;
 
         public ObservableCollection<Cabinet> CartItems {get;} = new();
          public ICommand ToggleCartCommand { get; }
@@ -82,8 +89,19 @@ namespace KitBox.ViewModels
         /// <summary>
         /// Méthode utilitaire pour changer de page facilement
         /// </summary>
-        public void NavigateTo(ViewModelBase nextViewModel) => CurrentPage = nextViewModel;
-        public void AddToCart(Cabinet cabinet)
+        public void NavigateTo(ViewModelBase nextViewModel)
+        {
+            CurrentPage = nextViewModel;
+
+            ShowCart =
+                nextViewModel is HomeViewModel ||
+                nextViewModel is DimensionsViewModel ||
+                nextViewModel is CustomizationViewModel ||
+                nextViewModel is SummaryViewModel ||
+                nextViewModel is FinalizeViewModel;
+
+        }  
+      public void AddToCart(Cabinet cabinet)
         {
             if (cabinet == null) return;
 

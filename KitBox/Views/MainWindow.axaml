@@ -15,7 +15,7 @@
       <DockPanel LastChildFill="True">
         <TextBlock Text="KitBox" FontSize="18" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
 
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="1" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding ShowCart}">
           <Border Background="#2196F3" CornerRadius="999" Padding="6,2">
             <TextBlock Text="{Binding CartItems.Count}" Foreground="White" FontWeight="Bold"/>
           </Border>
@@ -32,7 +32,7 @@
 
     <!-- Assombrissement de la page en arrière plan -->
     <Button Grid.RowSpan="2"
-            IsVisible="{Binding CartOpen}"
+            IsVisible="{Binding CartVisible}"
             Command="{Binding CloseCartCommand}"
             Background="#66000000"
             HorizontalAlignment="Stretch"
