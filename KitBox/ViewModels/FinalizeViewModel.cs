@@ -29,7 +29,7 @@ namespace KitBox.ViewModels
             set => this.RaiseAndSetIfChanged(ref _emailAddress, value);
         }
 
-        private string _paymentMessage = "Confirmez votre panier svp pour finaliser l'achat.";
+        private string _paymentMessage = "To finalize your purchase, please validate your cart.";
         public string PaymentMessage
         {
             get => _paymentMessage;
