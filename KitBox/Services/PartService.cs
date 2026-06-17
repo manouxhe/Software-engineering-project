@@ -158,6 +158,13 @@ namespace KitBox.Services
                     AddPartLine(connection, result, "Left or right panel", null, cabinet.Depth, locker.Height, locker.PanelColor, 2, $"{prefix} Panneaux latéraux");
                     AddPartLine(connection, result, "Back panel", cabinet.Width, null, locker.Height, locker.PanelColor, 1, $"{prefix} Panneau arrière");
 
+                    // --- QUICK FIX : Door ---
+                    if (locker.HasDoor && !string.IsNullOrEmpty(locker.DoorColor))
+                    {
+
+                        AddPartLine(connection, result, "Door", null, 0, locker.Height, locker.DoorColor, 2, $"{prefix} Portes");
+                    }
+
                     // 2. LA BOUCLE POLYMORPHE (Le Principe Open/Closed)
                     foreach (var element in locker.Elements)
                     {
@@ -227,6 +234,7 @@ namespace KitBox.Services
                 return;
             }
 
+            checkout.MissingItems.Add(new PartStockAlert(label, quantity, 0));
             checkout.Messages.Add($"{label} introuvable en base ({logicalKind}).");
         }
 
