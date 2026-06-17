@@ -68,7 +68,7 @@
                                         <TextBlock Text="{Binding SupplierName}" FontWeight="Bold"/>
                                         <TextBlock Text="-"/>
                                         <TextBlock Text="{Binding PurchasePrice, StringFormat='{}{0} €'}"/>
-                                        <TextBlock Text="{Binding DeliveryDelay, StringFormat='(Lead time : {0} j)'}" Foreground="Gray"/>
+                                        <TextBlock Text="{Binding DeliveryDelay, StringFormat='(Lead time : {0} d)'}" Foreground="Gray"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
