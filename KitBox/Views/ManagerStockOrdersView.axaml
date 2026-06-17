@@ -18,7 +18,7 @@
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="Part &amp; Supplier :" Foreground="#888" FontSize="12"/>
-                                <TextBlock Text="{Binding PartCode, StringFormat='Pièce : {0}'}" FontWeight="Bold" FontSize="16" Foreground="Black"/>
+                                <TextBlock Text="{Binding PartCode, StringFormat='Part : {0}'}" FontWeight="Bold" FontSize="16" Foreground="Black"/>
                                 <TextBlock Text="{Binding SupplierName}" Foreground="#555" FontSize="14"/>
                             </StackPanel>
 
